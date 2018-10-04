@@ -1,64 +1,64 @@
 
 file* initialize(){
-  file *snake = malloc(sizeof(*snake));
-  snake->head = NULL;
-  return snake;
+  file *body = malloc(sizeof(*body));
+  body->head = NULL;
+  return body;
 }
 
 
-int fileSize(file *file0){
+int fileSize(file *body){
   int i = 0;
-  Element *element = file0->head;
+  Element *element = body->head;
   while (element->nextPos != NULL){
-    i+=1;
+    i += 1;
     element = element->nextPos;
   }
   return i;
 }
 
-void fileIn(file *snake, SDL_Rect pos){
+void fileIn(file *body, SDL_Rect pos){
   Element *newPos = malloc(sizeof(*newPos));
-  if (snake == NULL || newPos == NULL){
+  if (body == NULL || newPos == NULL){
     exit(EXIT_FAILURE);
   }
   newPos->pos = pos;
   newPos->nextPos = NULL;
 
-  if (snake->head != NULL){ /* file not empty */
-    Element *currentElement = snake->head;
-    while (currentElement->nextPos != NULL){
-      currentElement = currentElement->nextPos;
+  if (body->head != NULL){ /* file not empty */
+    Element *element = body->head;
+    while (element->nextPos != NULL){
+      element = element->nextPos;
     }
-      currentElement->nextPos = newPos;
+      element->nextPos = newPos;
   }
   else{
-    snake->head = newPos;
+    body->head = newPos;
   }
 }
 
-void fileOut(file *snake){
-  if (snake == NULL){
+void fileOut(file *body){
+  if (body == NULL){
     exit(EXIT_FAILURE);
   }
 
-  if (snake->head != NULL){
-    Element *elementDefile = snake->head;
-    snake->head = elementDefile->nextPos;
-    free(elementDefile);
+  if (body->head != NULL){
+    Element *element = body->head;
+    body->head = element->nextPos;
+    free(element);
   }
 }
 
 /* returns the snake head */
-SDL_Rect fileTail(file *file0){
-  Element *element = file0->head;
+SDL_Rect fileTail(file *body){
+  Element *element = body->head;
   while (element->nextPos != NULL){
     element = element->nextPos;
   }
   return element->pos;
 }
 
-SDL_Rect fileNb(file *file0, int size){
-  Element *element = file0->head;
+SDL_Rect fileNb(file *body, int size){
+  Element *element = body->head;
   for (int i=0; i<size;i++){
     if (element->nextPos != NULL){
         element = element->nextPos;
@@ -68,12 +68,12 @@ SDL_Rect fileNb(file *file0, int size){
 }
 
 /* returns the snake tail */
-SDL_Rect fileHead(file *file0){
-  if (file0 == NULL){
+SDL_Rect fileHead(file *body){
+  if (body == NULL){
     exit(EXIT_FAILURE);
   }
-  if (file0->head != NULL){
-    return file0->head->pos;
+  if (body->head != NULL){
+    return body->head->pos;
   }
   return (SDL_Rect) {-1, -1, -1, -1};
 }

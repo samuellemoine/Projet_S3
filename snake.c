@@ -33,18 +33,18 @@ int indice(int coord, int size){
   return i;
 }
 
-SDL_Rect randFood(file *file0){
+SDL_Rect randFood(file *body){
   int randx = rand()%(NBX);
   int randy = rand()%(NBY);
   SDL_Rect r = {randx * SNAKE_WIDTH, randy * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT };
-  if (!validRand(file0, randx, randy)){
-    randFood(file0);
+  if (!validRand(body, randx, randy)){
+    randFood(body);
   }
   return r;
 }
 
-bool validRand(file *file0, int x, int y){
-  Element *element = file0->head;
+bool validRand(file *body, int x, int y){
+  Element *element = body->head;
   while (element != NULL){
     if (element->pos.x / SNAKE_WIDTH == x && element->pos.y / SNAKE_HEIGHT){
       return false;
@@ -60,15 +60,16 @@ bool isSameDir(axe *currentDir, axe *dir){
 }
 
 bool snakeContact(file *body){
+
   Element *element = body->head;
   SDL_Rect head = fileTail(body);
-  SDL_Rect tail = fileHead(body);
-  if (head.x == tail.x && head.y == tail.y){
-    return false;
-  }
-  while (element != NULL){
-    if (indice(element->pos.x, SNAKE_WIDTH) == indice(head.x, SNAKE_WIDTH)
-        && indice(element->pos.y, SNAKE_HEIGHT) == indice(head.y, SNAKE_HEIGHT)){
+
+  int hx = indice(head.x, SNAKE_WIDTH);
+  int hy = indice(head.y, SNAKE_HEIGHT);
+
+  while (element->nextPos != NULL){
+    if (indice(element->pos.x, SNAKE_WIDTH) == hx
+        && indice(element->pos.y, SNAKE_HEIGHT) == hy){
       return true;
     }
     element = element->nextPos;
@@ -93,7 +94,7 @@ void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL
   bool nextHead, eats;
   int tmpPosX, tmpPosY;
   int xx = -1; int yy = -1;
-  SDL_Rect currentHead;
+  SDL_Rect currentHead = fileTail(body);  /* SDL_Rect of the snake's head */
 
   /* update direction */
   setDir(&head->dir, currentDir);
@@ -104,7 +105,7 @@ void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL
   tmpPosX += head->dir.dx * VELOCITY;
   tmpPosY += head->dir.dy * VELOCITY;
 
-  /* make the snake go through walls */
+  /* make the snake fuse through walls */
   if (tmpPosX < 0){
     head->snakeRect.x = SCREEN_WIDTH;
   }
@@ -131,10 +132,8 @@ void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL
 
 
   /* setting the two necessary booleans to move the snake */
-  currentHead = fileTail(body);
   eats = foodContact(&head->snakeRect, food);
-  nextHead = (indice(currentHead.x, SNAKE_WIDTH) != indice(head->snakeRect.x, SNAKE_WIDTH))
-      || (indice(currentHead.y, SNAKE_HEIGHT) != indice(head->snakeRect.y, SNAKE_HEIGHT));
+  nextHead = (indice(currentHead.x, SNAKE_WIDTH) != xx) || (indice(currentHead.y, SNAKE_HEIGHT) != yy);
 
 
   if (xx >= 0 && xx < NBX && yy >= 0 && yy < NBY){
@@ -147,7 +146,7 @@ void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL
     else if (!eats && nextHead){
       fileIn(body,grid[xx][yy]);
       fileOut(body);
-      printf("Tail: <%d,%d>\n", fileHead(body).x/SNAKE_WIDTH, fileHead(body).y/SNAKE_HEIGHT);
+      //printf("Tail: <%d,%d>\n", fileHead(body).x/SNAKE_WIDTH, fileHead(body).y/SNAKE_HEIGHT);
     }
   }
 

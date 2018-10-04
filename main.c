@@ -22,11 +22,9 @@ int main(int argc, char *argv[]){
   int i, j;
   for (i = 0; i < NBX; i++){
     for (j = 0; j < NBY; j++){
-      gridBool[i][j] = false;
       setRect(&grid[i][j], i * SNAKE_WIDTH, j * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT);
     }
   }
-  gridBool[NBX/2][NBY/2] = true;
 
   setRect(&head.snakeRect, grid[NBX/2][NBY/2].x, grid[NBX/2][NBY/2].y, SNAKE_WIDTH, SNAKE_HEIGHT);
 
@@ -54,10 +52,13 @@ int main(int argc, char *argv[]){
   /* main loop */
   while(playing){
 
+
     putSnake(body, &head, screen, texture, texture0, &food, grid);
     handleKeys(keyboardState, &currentDir, &direction);
     move(&currentDir, &head, grid, body, &food);
-
+    if (snakeContact(body)){
+      playing = false;
+    }
     while(SDL_PollEvent(&event)){
       if (event.type == SDL_QUIT || keyboardState[SDL_SCANCODE_ESCAPE]){
         playing = false;
