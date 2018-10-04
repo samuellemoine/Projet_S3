@@ -85,7 +85,7 @@ void putSnake(file *file, snake *head, SDL_Renderer *screen, SDL_Texture *textur
     }
 
     int i, j;
-    SDL_Rect r, r0;
+    SDL_Rect r = {0, 0, SNAKE_WIDTH, SNAKE_HEIGHT};
 
     i = 0; j = 0;
     /* this if - else if block smoothens the snake's movement */
@@ -108,7 +108,7 @@ void putSnake(file *file, snake *head, SDL_Renderer *screen, SDL_Texture *textur
     SDL_RenderClear(screen);
     SDL_RenderCopy(screen, texture0, NULL, food);
     SDL_RenderCopy(screen, texture, NULL, &r);
-    SDL_RenderCopy(screen, texture, NULL, &r0);
+
     /* display the snake blocks contained in the file */
     Element *element = file->head;
     while (element != NULL){

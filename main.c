@@ -18,7 +18,6 @@ int main(int argc, char *argv[]){
   file *body = initialize();
 
   SDL_Rect grid[NBX][NBY];
-  bool gridBool[NBX][NBY];
 
   int i, j;
   for (i = 0; i < NBX; i++){
