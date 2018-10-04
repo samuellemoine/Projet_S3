@@ -12,7 +12,7 @@ int main(int argc, char *argv[]){
 
 
   srand(time(0));
-  int size = 0;
+
   bool playing = true;
   snake head;
   file *body = initialize();
@@ -55,25 +55,9 @@ int main(int argc, char *argv[]){
   /* main loop */
   while(playing){
 
-
     putSnake(body, &head, screen, texture, texture0, &food, grid);
-
-
-    if (keyboardState[SDL_SCANCODE_LEFT] && currentDir.dx != 1){
-      setDir(&currentDir, &direction.left);
-    }
-    if (keyboardState[SDL_SCANCODE_RIGHT] && currentDir.dx != -1){
-      setDir(&currentDir, &direction.right);
-    }
-    if (keyboardState[SDL_SCANCODE_UP] && currentDir.dy != 1){
-      setDir(&currentDir, &direction.up);
-    }
-    if (keyboardState[SDL_SCANCODE_DOWN] && currentDir.dy != -1){
-      setDir(&currentDir, &direction.down);
-    }
-
-    move(&currentDir, &head, grid, gridBool, body, &food, &size);
-
+    handleKeys(keyboardState, &currentDir, &direction);
+    move(&currentDir, &head, grid, body, &food);
 
     while(SDL_PollEvent(&event)){
       if (event.type == SDL_QUIT || keyboardState[SDL_SCANCODE_ESCAPE]){

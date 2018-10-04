@@ -48,7 +48,7 @@ void fileOut(file *snake){
   }
 }
 
-
+/* returns the snake head */
 SDL_Rect fileTail(file *file0){
   Element *element = file0->head;
   while (element->nextPos != NULL){
@@ -67,16 +67,15 @@ SDL_Rect fileNb(file *file0, int size){
   return element->pos;
 }
 
+/* returns the snake tail */
 SDL_Rect fileHead(file *file0){
-  SDL_Rect head;
   if (file0 == NULL){
     exit(EXIT_FAILURE);
   }
-
   if (file0->head != NULL){
-    head = file0->head->pos;
+    return file0->head->pos;
   }
-  return head;
+  return (SDL_Rect) {-1, -1, -1, -1};
 }
 
 
@@ -86,7 +85,7 @@ void putSnake(file *file, snake *head, SDL_Renderer *screen, SDL_Texture *textur
     }
 
     int i, j;
-    SDL_Rect r;
+    SDL_Rect r, r0;
 
     i = 0; j = 0;
     /* this if - else if block smoothens the snake's movement */
@@ -105,12 +104,12 @@ void putSnake(file *file, snake *head, SDL_Renderer *screen, SDL_Texture *textur
       setRect(&r, head->snakeRect.x + i, grid[0][j].y, SNAKE_WIDTH, SNAKE_HEIGHT);
     }
 
+    /* display */
     SDL_RenderClear(screen);
     SDL_RenderCopy(screen, texture0, NULL, food);
     SDL_RenderCopy(screen, texture, NULL, &r);
-
-
-    /* display the snake blocks (not smooth, following the grid) */
+    SDL_RenderCopy(screen, texture, NULL, &r0);
+    /* display the snake blocks contained in the file */
     Element *element = file->head;
     while (element != NULL){
       SDL_RenderCopy(screen, texture, NULL, &element->pos);

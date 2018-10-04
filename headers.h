@@ -10,10 +10,10 @@
 
 
 
-#define SCREEN_WIDTH      600
-#define SCREEN_HEIGHT     600
-#define SNAKE_WIDTH       30
-#define SNAKE_HEIGHT      30
+#define SCREEN_WIDTH      400
+#define SCREEN_HEIGHT     400
+#define SNAKE_WIDTH       20
+#define SNAKE_HEIGHT      20
 #define FOOD_WIDTH        8
 #define FOOD_HEIGHT       8
 #define VELOCITY          1

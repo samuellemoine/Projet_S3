@@ -1,5 +1,3 @@
-
-
 void setRect(SDL_Rect *r, int x, int y, int w, int h){
   r->x = x; r->y = y; r->w=w, r->h=h;
 }
@@ -8,6 +6,21 @@ void setRect(SDL_Rect *r, int x, int y, int w, int h){
 void setDir(axe *currentDir, axe *dir){
   currentDir->dx = dir->dx;
   currentDir->dy = dir->dy;
+}
+
+void handleKeys(const Uint8 *keyboardState, axe *currentDir, dir *direction){
+  if (keyboardState[SDL_SCANCODE_LEFT] && currentDir->dx != 1){
+    setDir(currentDir, &direction->left);
+  }
+  if (keyboardState[SDL_SCANCODE_RIGHT] && currentDir->dx != -1){
+    setDir(currentDir, &direction->right);
+  }
+  if (keyboardState[SDL_SCANCODE_UP] && currentDir->dy != 1){
+    setDir(currentDir, &direction->up);
+  }
+  if (keyboardState[SDL_SCANCODE_DOWN] && currentDir->dy != -1){
+    setDir(currentDir, &direction->down);
+  }
 }
 
    /* gives better precision in commands than integer division */
@@ -42,9 +55,26 @@ bool validRand(file *file0, int x, int y){
 }
 
 
-/*bool isSameDir(axe *currentDir, axe *dir){
+bool isSameDir(axe *currentDir, axe *dir){
   return currentDir->dx == dir->dx && currentDir->dy == dir->dy;
-}*/
+}
+
+bool snakeContact(file *body){
+  Element *element = body->head;
+  SDL_Rect head = fileTail(body);
+  SDL_Rect tail = fileHead(body);
+  if (head.x == tail.x && head.y == tail.y){
+    return false;
+  }
+  while (element != NULL){
+    if (indice(element->pos.x, SNAKE_WIDTH) == indice(head.x, SNAKE_WIDTH)
+        && indice(element->pos.y, SNAKE_HEIGHT) == indice(head.y, SNAKE_HEIGHT)){
+      return true;
+    }
+    element = element->nextPos;
+  }
+  return false;
+}
 
 
 bool foodContact(SDL_Rect *head, SDL_Rect *target){
@@ -55,13 +85,15 @@ bool foodContact(SDL_Rect *head, SDL_Rect *target){
 }
 
 
-void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], bool gridBool[NBX][NBY], file *body, SDL_Rect *food, int *size){
+void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL_Rect *food){
 
 
   SDL_Delay(ADJUST_LEVEL - LEVEL);
 
-  bool c;
-  int tmpPosX, tmpPosY, xx, yy;
+  bool nextHead, eats;
+  int tmpPosX, tmpPosY;
+  int xx = -1; int yy = -1;
+  SDL_Rect currentHead;
 
   /* update direction */
   setDir(&head->dir, currentDir);
@@ -72,49 +104,51 @@ void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], bool gridBool[N
   tmpPosX += head->dir.dx * VELOCITY;
   tmpPosY += head->dir.dy * VELOCITY;
 
-  /* apply temporary positions */
-  if (tmpPosX >= 0 && tmpPosX <= SCREEN_WIDTH - SNAKE_WIDTH){
-    head->snakeRect.x = tmpPosX;
-    xx = indice(tmpPosX, SNAKE_WIDTH);
+  /* make the snake go through walls */
+  if (tmpPosX < 0){
+    head->snakeRect.x = SCREEN_WIDTH;
   }
-  if (tmpPosY >= 0 && tmpPosY <= SCREEN_HEIGHT - SNAKE_HEIGHT){
-    yy = indice(tmpPosY, SNAKE_HEIGHT);
+  else if (tmpPosX >= SCREEN_WIDTH - SNAKE_WIDTH){
+    head->snakeRect.x = 0;
+  }
+  if (tmpPosY < 0){
+    head->snakeRect.y = SCREEN_HEIGHT;
+  }
+  else if (tmpPosY >= SCREEN_HEIGHT - SNAKE_HEIGHT){
+    head->snakeRect.y = 0;
+  }
+
+  /* apply temporary positions whe tmpPos within limits */
+  if (tmpPosX >= 0 && tmpPosX < SCREEN_WIDTH){
+    head->snakeRect.x = tmpPosX;
+  }
+  if (tmpPosY >= 0 && tmpPosY < SCREEN_HEIGHT){
     head->snakeRect.y = tmpPosY;
   }
+  /* determine position in the grid */
+  xx = indice(head->snakeRect.x, SNAKE_WIDTH);
+  yy = indice(head->snakeRect.y, SNAKE_HEIGHT);
 
 
+  /* setting the two necessary booleans to move the snake */
+  currentHead = fileTail(body);
+  eats = foodContact(&head->snakeRect, food);
+  nextHead = (indice(currentHead.x, SNAKE_WIDTH) != indice(head->snakeRect.x, SNAKE_WIDTH))
+      || (indice(currentHead.y, SNAKE_HEIGHT) != indice(head->snakeRect.y, SNAKE_HEIGHT));
 
-  c = foodContact(&head->snakeRect, food);
 
-  if (xx >= 0 && xx <= NBX && yy >= 0 && yy <= NBY){
+  if (xx >= 0 && xx < NBX && yy >= 0 && yy < NBY){
 
-  if (c){
-    fileIn(body,grid[xx][yy]);
-      if (head->snakeRect.x == 0){
-        head->snakeRect.y += head->dir.dy * SNAKE_WIDTH;
-      }
-      else if (head->snakeRect.y == 0){
-        head->snakeRect.x += head->dir.dx * SNAKE_HEIGHT;
-      }
-
+    if (eats && nextHead){
+      fileIn(body,grid[xx][yy]);
       *food = randFood(body);
-      *size += 1;
-      //printf("%d\n", fileSize(body));
-      printf("%d\n", *size);
+    }
+
+    else if (!eats && nextHead){
+      fileIn(body,grid[xx][yy]);
+      fileOut(body);
+      printf("Tail: <%d,%d>\n", fileHead(body).x/SNAKE_WIDTH, fileHead(body).y/SNAKE_HEIGHT);
+    }
   }
-else{
-  fileIn(body,grid[xx][yy]);
-  fileOut(body);
-}
-
-      //printf("no contact\n");
-      //fileOut(body);
-    //  printf("CONTACTCONTACTCONTACTCONTACT\n");
-
-
-
-  }
-
-
 
 }
