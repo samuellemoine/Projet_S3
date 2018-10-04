@@ -37,7 +37,7 @@ SDL_Rect randFood(file *file0){
   int randx = rand()%(NBX);
   int randy = rand()%(NBY);
   SDL_Rect r = {randx * SNAKE_WIDTH, randy * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT };
-  while (!validRand(file0, randx, randy)){
+  if (!validRand(file0, randx, randy)){
     randFood(file0);
   }
   return r;
