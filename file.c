@@ -59,10 +59,10 @@ SDL_Rect fileTail(file *body){
 
 SDL_Rect fileNb(file *body, int size){
   Element *element = body->head;
-  for (int i=0; i<size;i++){
-    if (element->nextPos != NULL){
-        element = element->nextPos;
-    }
+  int i = 0;
+  while (i < size && element->nextPos != NULL){
+    i += 1;
+    element = element->nextPos;
   }
   return element->pos;
 }
@@ -79,7 +79,7 @@ SDL_Rect fileHead(file *body){
 }
 
 
-void putSnake(file *file, snake *head, SDL_Renderer *screen, SDL_Texture *texture, SDL_Texture *texture0, SDL_Rect *food, SDL_Rect grid[NBX][NBY]){
+void drawSnake(file *file, snake *head, SDL_Renderer *screen, SDL_Texture *texture, SDL_Texture *texture0, SDL_Rect *food, SDL_Rect grid[NBX][NBY]){
     if (file == NULL){
         exit(EXIT_FAILURE);
     }

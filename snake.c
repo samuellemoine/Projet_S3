@@ -1,3 +1,4 @@
+
 void setRect(SDL_Rect *r, int x, int y, int w, int h){
   r->x = x; r->y = y; r->w=w, r->h=h;
 }
@@ -86,12 +87,12 @@ bool foodContact(SDL_Rect *head, SDL_Rect *target){
 }
 
 
-void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL_Rect *food){
+void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL_Rect *food, bool *gameover){
 
 
   SDL_Delay(ADJUST_LEVEL - LEVEL);
 
-  bool nextHead, eats;
+  bool nextHead, eats, isInLimits;
   int tmpPosX, tmpPosY;
   int xx = -1; int yy = -1;
   SDL_Rect currentHead = fileTail(body);  /* SDL_Rect of the snake's head */
@@ -131,22 +132,23 @@ void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL
   yy = indice(head->snakeRect.y, SNAKE_HEIGHT);
 
 
-  /* setting the two necessary booleans to move the snake */
+  /* setting the three necessary booleans to move the snake */
   eats = foodContact(&head->snakeRect, food);
   nextHead = (indice(currentHead.x, SNAKE_WIDTH) != xx) || (indice(currentHead.y, SNAKE_HEIGHT) != yy);
+  isInLimits = xx >= 0 && xx < NBX && yy >= 0 && yy < NBY;
 
-
-  if (xx >= 0 && xx < NBX && yy >= 0 && yy < NBY){
-
-    if (eats && nextHead){
+  if (isInLimits && nextHead){
+    if (eats){
       fileIn(body,grid[xx][yy]);
       *food = randFood(body);
     }
-
-    else if (!eats && nextHead){
+    else{
       fileIn(body,grid[xx][yy]);
       fileOut(body);
-      //printf("Tail: <%d,%d>\n", fileHead(body).x/SNAKE_WIDTH, fileHead(body).y/SNAKE_HEIGHT);
+      printf("Tail: <%d,%d>\n", fileHead(body).x/SNAKE_WIDTH, fileHead(body).y/SNAKE_HEIGHT);
+      }
+    if (snakeContact(body)){
+      *gameover = true;
     }
   }
 
