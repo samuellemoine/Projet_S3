@@ -10,14 +10,14 @@
 
 
 
-#define SCREEN_WIDTH      400
-#define SCREEN_HEIGHT     400
-#define SNAKE_WIDTH       20
-#define SNAKE_HEIGHT      20
+#define SCREEN_WIDTH      500
+#define SCREEN_HEIGHT     500
+#define SNAKE_WIDTH       25
+#define SNAKE_HEIGHT      25
 #define FOOD_WIDTH        8
 #define FOOD_HEIGHT       8
 #define VELOCITY          1
-#define LEVEL             5
+#define LEVEL             7
 #define ADJUST_LEVEL      15
 #define NBX               SCREEN_WIDTH / SNAKE_WIDTH
 #define NBY               SCREEN_HEIGHT / SNAKE_HEIGHT

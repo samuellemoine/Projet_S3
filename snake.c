@@ -9,18 +9,22 @@ void setDir(axe *currentDir, axe *dir){
   currentDir->dy = dir->dy;
 }
 
-void handleKeys(const Uint8 *keyboardState, axe *currentDir, dir *direction){
-  if (keyboardState[SDL_SCANCODE_LEFT] && currentDir->dx != 1){
+void handleKeys(const Uint8 *keyboardState, axe *currentDir, dir *direction, bool *dirChanged){
+  if (keyboardState[SDL_SCANCODE_LEFT] && currentDir->dx != 1 && !*dirChanged){
     setDir(currentDir, &direction->left);
+    *dirChanged = true;
   }
-  if (keyboardState[SDL_SCANCODE_RIGHT] && currentDir->dx != -1){
+  if (keyboardState[SDL_SCANCODE_RIGHT] && currentDir->dx != -1 && !*dirChanged){
     setDir(currentDir, &direction->right);
+    *dirChanged = true;
   }
-  if (keyboardState[SDL_SCANCODE_UP] && currentDir->dy != 1){
+  if (keyboardState[SDL_SCANCODE_UP] && currentDir->dy != 1 && !*dirChanged){
     setDir(currentDir, &direction->up);
+    *dirChanged = true;
   }
-  if (keyboardState[SDL_SCANCODE_DOWN] && currentDir->dy != -1){
+  if (keyboardState[SDL_SCANCODE_DOWN] && currentDir->dy != -1 && !*dirChanged){
     setDir(currentDir, &direction->down);
+    *dirChanged = true;
   }
 }
 
@@ -34,26 +38,29 @@ int indice(int coord, int size){
   return i;
 }
 
-SDL_Rect randFood(file *body){
-  int randx = rand()%(NBX);
-  int randy = rand()%(NBY);
-  SDL_Rect r = {randx * SNAKE_WIDTH, randy * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT };
-  if (!validRand(body, randx, randy)){
-    randFood(body);
-  }
-  return r;
-}
-
 bool validRand(file *body, int x, int y){
   Element *element = body->head;
   while (element != NULL){
-    if (element->pos.x / SNAKE_WIDTH == x && element->pos.y / SNAKE_HEIGHT){
+    if (element->pos.x / SNAKE_WIDTH == x && element->pos.y / SNAKE_HEIGHT == y){
       return false;
     }
     element = element->nextPos;
   }
+
   return true;
 }
+
+SDL_Rect randFood(file *body){
+  int randx = rand()%(NBX);
+  int randy = rand()%(NBY);
+  if (!validRand(body, randx, randy)){
+    return randFood(body);
+  }
+  SDL_Rect r = {randx * SNAKE_WIDTH, randy * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT };
+  return r;
+}
+
+
 
 
 bool isSameDir(axe *currentDir, axe *dir){
@@ -87,12 +94,14 @@ bool foodContact(SDL_Rect *head, SDL_Rect *target){
 }
 
 
-void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL_Rect *food, bool *gameover){
 
+
+
+void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL_Rect *food, bool *gameover, bool *dirChanged){
 
   SDL_Delay(ADJUST_LEVEL - LEVEL);
 
-  bool nextHead, eats, isInLimits;
+  bool headMoved, eats, isInLimits;
   int tmpPosX, tmpPosY;
   int xx = -1; int yy = -1;
   SDL_Rect currentHead = fileTail(body);  /* SDL_Rect of the snake's head */
@@ -134,10 +143,11 @@ void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL
 
   /* setting the three necessary booleans to move the snake */
   eats = foodContact(&head->snakeRect, food);
-  nextHead = (indice(currentHead.x, SNAKE_WIDTH) != xx) || (indice(currentHead.y, SNAKE_HEIGHT) != yy);
+  headMoved = (indice(currentHead.x, SNAKE_WIDTH) != xx) || (indice(currentHead.y, SNAKE_HEIGHT) != yy);
   isInLimits = xx >= 0 && xx < NBX && yy >= 0 && yy < NBY;
 
-  if (isInLimits && nextHead){
+  if (isInLimits && headMoved){
+    *dirChanged = false;
     if (eats){
       fileIn(body,grid[xx][yy]);
       *food = randFood(body);
@@ -145,8 +155,7 @@ void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL
     else{
       fileIn(body,grid[xx][yy]);
       fileOut(body);
-      printf("Tail: <%d,%d>\n", fileHead(body).x/SNAKE_WIDTH, fileHead(body).y/SNAKE_HEIGHT);
-      }
+    }
     if (snakeContact(body)){
       *gameover = true;
     }

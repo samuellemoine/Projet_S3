@@ -9,7 +9,7 @@ int main(int argc, char *argv[]){
     SDL_Quit();
     return EXIT_FAILURE;
   }
-  SDL_Window *window = SDL_CreateWindow("Game", SDL_WINDOWPOS_CENTERED,
+  SDL_Window *window = SDL_CreateWindow("Snake", SDL_WINDOWPOS_CENTERED,
            SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
   if (window == NULL){
     printf("Window creation failed ! : %s", SDL_GetError());
@@ -22,6 +22,7 @@ int main(int argc, char *argv[]){
 
   bool playing = true;    /* controls main loop */
   bool gameover = false; /* stops the snake from moving on on collision */
+  bool dirChanged = false;
 
   SDL_Rect grid[NBX][NBY];   /* fixed positions of the snake */
   for (int i = 0; i < NBX; i++){
@@ -55,8 +56,8 @@ int main(int argc, char *argv[]){
   while(playing){
     if (!gameover){
       drawSnake(body, &head, screen, texture, texture0, &food, grid);
-      handleKeys(keyboardState, &currentDir, &direction);
-      move(&currentDir, &head, grid, body, &food, &gameover);
+      handleKeys(keyboardState, &currentDir, &direction, &dirChanged);
+      move(&currentDir, &head, grid, body, &food, &gameover, &dirChanged);
     }
 
     while(SDL_PollEvent(&event)){
