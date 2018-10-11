@@ -57,7 +57,7 @@ int main(int argc, char *argv[]){
   /* main loop */
   while(playing){
     if (!gameover){
-      handleKeys(keyboardState, &currentDir, &direction, &dirChanged, &pause, &event);
+      handleKeys(keyboardState, &currentDir, &direction, &dirChanged, &pause);
       if (!pause){
         move(&currentDir, &head, grid, body, &food, &gameover, &dirChanged);
         drawSnake(body, &head, screen, texture, texture0, &food, grid);
