@@ -23,6 +23,7 @@ int main(int argc, char *argv[]){
   bool playing = true;    /* controls main loop */
   bool gameover = false; /* stops the snake from moving on on collision */
   bool dirChanged = false;
+  bool pause = false;
 
   SDL_Rect grid[NBX][NBY];   /* fixed positions of the snake */
   for (int i = 0; i < NBX; i++){
@@ -50,16 +51,20 @@ int main(int argc, char *argv[]){
   SDL_Texture *texture0 = SDL_CreateTextureFromSurface(screen, image0);
   SDL_Rect food = randFood(body);
   SDL_Event event;
+  SDL_SetWindowIcon(window, image);
 
 
   /* main loop */
   while(playing){
     if (!gameover){
-      drawSnake(body, &head, screen, texture, texture0, &food, grid);
-      handleKeys(keyboardState, &currentDir, &direction, &dirChanged);
-      move(&currentDir, &head, grid, body, &food, &gameover, &dirChanged);
+      handleKeys(keyboardState, &currentDir, &direction, &dirChanged, &pause, &event);
+      if (!pause){
+        move(&currentDir, &head, grid, body, &food, &gameover, &dirChanged);
+        drawSnake(body, &head, screen, texture, texture0, &food, grid);
+      }
     }
 
+    /* quit the game */
     while(SDL_PollEvent(&event)){
       if (event.type == SDL_QUIT || keyboardState[SDL_SCANCODE_ESCAPE]){
         playing = false;

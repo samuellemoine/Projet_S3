@@ -9,7 +9,16 @@ void setDir(axe *currentDir, axe *dir){
   currentDir->dy = dir->dy;
 }
 
-void handleKeys(const Uint8 *keyboardState, axe *currentDir, dir *direction, bool *dirChanged){
+void handleKeys(const Uint8 *keyboardState, axe *currentDir, dir *direction, bool *dirChanged, bool *pause, SDL_Event *event){
+  bool arrowPressed = keyboardState[SDL_SCANCODE_LEFT] || keyboardState[SDL_SCANCODE_RIGHT] || keyboardState[SDL_SCANCODE_UP] || keyboardState[SDL_SCANCODE_DOWN];
+  if (arrowPressed  && *pause){
+        *pause = false;
+  }
+  if (keyboardState[SDL_SCANCODE_P]){
+    *pause = !(*pause);
+    SDL_Delay(350);
+  }
+      
   if (keyboardState[SDL_SCANCODE_LEFT] && currentDir->dx != 1 && !*dirChanged){
     setDir(currentDir, &direction->left);
     *dirChanged = true;
@@ -26,6 +35,7 @@ void handleKeys(const Uint8 *keyboardState, axe *currentDir, dir *direction, boo
     setDir(currentDir, &direction->down);
     *dirChanged = true;
   }
+
 }
 
    /* gives better precision in commands than integer division */
