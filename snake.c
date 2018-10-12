@@ -1,3 +1,12 @@
+#include "headers.h"
+
+void timeout(int milliseconds){
+    int milliseconds_since = clock() * 1000 / CLOCKS_PER_SEC;
+    int end = milliseconds_since + milliseconds;
+    do {
+        milliseconds_since = clock() * 1000 / CLOCKS_PER_SEC;
+    } while (milliseconds_since <= end);
+}
 
 void setRect(SDL_Rect *r, int x, int y, int w, int h){
   r->x = x; r->y = y; r->w=w, r->h=h;
@@ -62,7 +71,7 @@ void handleKeys(const Uint8 *keyboardState, snake *head, dir *direction, bool *p
   }
   if (keyboardState[SDL_SCANCODE_P]){
     *pause = !(*pause);
-    SDL_Delay(300);
+    timeout(300);
   }
 
   if (keyboardState[SDL_SCANCODE_LEFT] && head->dir.dx != 1 && !*dirChanged){
@@ -154,8 +163,7 @@ bool foodContact(SDL_Rect *head, SDL_Rect *food){
 
 
 void move(snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL_Rect *food, bool *gameover, bool *dirChanged, int *level){
-
-  SDL_Delay(ADJUST_LEVEL - *level);
+  timeout(ADJUST_LEVEL - *level);
 
   bool headMoved, eats, isInLimits;
   int tmpPosX, tmpPosY;

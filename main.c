@@ -1,6 +1,4 @@
 #include "headers.h"
-#include "file.c"
-#include "snake.c"
 
 int main(int argc, char *argv[]){
 

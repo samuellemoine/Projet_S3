@@ -4,10 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <math.h>
 #include <string.h>
 #include <time.h>
-
 
 
 #define SCREEN_WIDTH      500
@@ -17,7 +15,7 @@
 #define FOOD_WIDTH        8
 #define FOOD_HEIGHT       8
 #define VELOCITY          1
-#define ADJUST_LEVEL      10
+#define ADJUST_LEVEL      9
 #define NBX               SCREEN_WIDTH / SNAKE_WIDTH
 #define NBY               SCREEN_HEIGHT / SNAKE_HEIGHT
 
@@ -70,6 +68,7 @@ void drawSnake(file *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SD
 
 
 /* function and method profiles for snake.c */
+void timeout(int);
 void setRect(SDL_Rect *, int, int, int, int);
 void setDir(axe *, axe *);
 void reset(bool *, bool *, bool *, bool *, snake *, file *, SDL_Rect *, SDL_Rect [NBX][NBY]);
