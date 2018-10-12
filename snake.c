@@ -9,30 +9,76 @@ void setDir(axe *currentDir, axe *dir){
   currentDir->dy = dir->dy;
 }
 
-void handleKeys(const Uint8 *keyboardState, axe *currentDir, dir *direction, bool *dirChanged, bool *pause){
+void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, snake *head, file *body, SDL_Rect *food, SDL_Rect grid[NBX][NBY]){
+    *started = false;
+    *pause = true;
+    *gameover = false;
+    *dirChanged = false;
+    axe ini = {0, 0};
+    while (fileSize(body) != 0){
+      fileOut(body);
+    }
+    setRect(&head->snakeRect, grid[NBX/2][NBY/2].x, grid[NBX/2][NBY/2].y, SNAKE_WIDTH, SNAKE_HEIGHT);
+    setDir(&head->dir, &ini);
+    fileIn(body, &head->snakeRect);
+    fileOut(body);
+    *food = randFood(body);
+
+}
+
+void handleMenu(bool *started, SDL_Event *event, SDL_Renderer *screen, SDL_Surface *levelSurface[], SDL_Rect *levelRect, int *level){
+  SDL_Texture *levelTexture = SDL_CreateTextureFromSurface(screen, levelSurface[*level]);
+  SDL_RenderClear(screen);
+  SDL_RenderCopy(screen, levelTexture, NULL, levelRect);
+  SDL_RenderPresent(screen);
+  if(event->type == SDL_KEYDOWN){
+    switch (event->key.keysym.sym){
+      case SDLK_LEFT:
+        if (*level > 0){
+          *level -= 1;
+        }
+      break;
+      case SDLK_RIGHT:
+        if (*level < 9){
+          *level += 1;
+        }
+      break;
+      case SDLK_UP:
+      break;
+      case SDLK_DOWN:
+      break;
+      case SDLK_RETURN:
+        *started = true;
+        break;
+    }
+  }
+  SDL_DestroyTexture(levelTexture);
+}
+
+void handleKeys(const Uint8 *keyboardState, snake *head, dir *direction, bool *pause, bool *dirChanged){
   bool arrowPressed = keyboardState[SDL_SCANCODE_LEFT] || keyboardState[SDL_SCANCODE_RIGHT] || keyboardState[SDL_SCANCODE_UP] || keyboardState[SDL_SCANCODE_DOWN];
   if (arrowPressed  && *pause){
         *pause = false;
   }
   if (keyboardState[SDL_SCANCODE_P]){
     *pause = !(*pause);
-    SDL_Delay(350);
+    SDL_Delay(300);
   }
 
-  if (keyboardState[SDL_SCANCODE_LEFT] && currentDir->dx != 1 && !*dirChanged){
-    setDir(currentDir, &direction->left);
+  if (keyboardState[SDL_SCANCODE_LEFT] && head->dir.dx != 1 && !*dirChanged){
+    setDir(&head->dir, &direction->left);
     *dirChanged = true;
   }
-  if (keyboardState[SDL_SCANCODE_RIGHT] && currentDir->dx != -1 && !*dirChanged){
-    setDir(currentDir, &direction->right);
+  if (keyboardState[SDL_SCANCODE_RIGHT] && head->dir.dx != -1 && !*dirChanged){
+    setDir(&head->dir, &direction->right);
     *dirChanged = true;
   }
-  if (keyboardState[SDL_SCANCODE_UP] && currentDir->dy != 1 && !*dirChanged){
-    setDir(currentDir, &direction->up);
+  if (keyboardState[SDL_SCANCODE_UP] && head->dir.dy != 1 && !*dirChanged){
+    setDir(&head->dir, &direction->up);
     *dirChanged = true;
   }
-  if (keyboardState[SDL_SCANCODE_DOWN] && currentDir->dy != -1 && !*dirChanged){
-    setDir(currentDir, &direction->down);
+  if (keyboardState[SDL_SCANCODE_DOWN] && head->dir.dy != -1 && !*dirChanged){
+    setDir(&head->dir, &direction->down);
     *dirChanged = true;
   }
 
@@ -96,8 +142,8 @@ bool snakeContact(file *body){
 }
 
 
-bool foodContact(SDL_Rect *head, SDL_Rect *target){
-  if ( indice(target->x, SNAKE_WIDTH) == indice(head->x, SNAKE_WIDTH) && indice(target->y, SNAKE_HEIGHT) == indice(head->y, SNAKE_HEIGHT)){
+bool foodContact(SDL_Rect *head, SDL_Rect *food){
+  if ( indice(food->x, SNAKE_WIDTH) == indice(head->x, SNAKE_WIDTH) && indice(food->y, SNAKE_HEIGHT) == indice(head->y, SNAKE_HEIGHT)){
         return true;
   }
   return false;
@@ -107,17 +153,14 @@ bool foodContact(SDL_Rect *head, SDL_Rect *target){
 
 
 
-void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL_Rect *food, bool *gameover, bool *dirChanged){
+void move(snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL_Rect *food, bool *gameover, bool *dirChanged, int *level){
 
-  SDL_Delay(ADJUST_LEVEL - LEVEL);
+  SDL_Delay(ADJUST_LEVEL - *level);
 
   bool headMoved, eats, isInLimits;
   int tmpPosX, tmpPosY;
   int xx = -1; int yy = -1;
   SDL_Rect currentHead = fileTail(body);  /* SDL_Rect of the snake's head */
-
-  /* update direction */
-  setDir(&head->dir, currentDir);
 
   /* update temporary positons */
   tmpPosX = head->snakeRect.x;
@@ -159,11 +202,12 @@ void move(axe *currentDir, snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL
   if (isInLimits && headMoved){
     *dirChanged = false;
     if (eats){
-      fileIn(body,grid[xx][yy]);
+      printf("Score: %d\n", (*level + 1) * (fileSize(body) + 1));
+      fileIn(body, &grid[xx][yy]);
       *food = randFood(body);
     }
     else{
-      fileIn(body,grid[xx][yy]);
+      fileIn(body, &grid[xx][yy]);
       fileOut(body);
     }
     if (snakeContact(body)){

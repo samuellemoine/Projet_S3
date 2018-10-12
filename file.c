@@ -16,12 +16,12 @@ int fileSize(file *body){
   return i;
 }
 
-void fileIn(file *body, SDL_Rect pos){
+void fileIn(file *body, SDL_Rect *pos){
   Element *newPos = malloc(sizeof(*newPos));
   if (body == NULL || newPos == NULL){
     exit(EXIT_FAILURE);
   }
-  newPos->pos = pos;
+  newPos->pos = *pos;
   newPos->nextPos = NULL;
 
   if (body->head != NULL){ /* file not empty */
@@ -76,13 +76,14 @@ SDL_Rect fileHead(file *body){
 }
 
 
-void drawSnake(file *body, snake *head, SDL_Renderer *screen, SDL_Texture *texture, SDL_Texture *texture0, SDL_Rect *food, SDL_Rect grid[NBX][NBY]){
+void drawSnake(file *body, snake *head, SDL_Renderer *screen, SDL_Texture *snakeTexture, SDL_Texture *foodTexture, SDL_Rect *food, SDL_Rect grid[NBX][NBY]){
     if (body == NULL){
         exit(EXIT_FAILURE);
     }
 
-    int i = 0; int j = 0;
-    SDL_Rect r = {0, 0, SNAKE_WIDTH, SNAKE_HEIGHT};
+    int i = 0;
+    int j = 0;
+    SDL_Rect smoothHead = {0, 0, SNAKE_WIDTH, SNAKE_HEIGHT};
 
     /* this if - else if block smoothens the snake's movement */
     if (head->dir.dx == 0){
@@ -90,43 +91,39 @@ void drawSnake(file *body, snake *head, SDL_Renderer *screen, SDL_Texture *textu
       if (head->dir.dy == -1){
         j = - SNAKE_HEIGHT;
       }
-      setRect(&r, grid[i][0].x, head->snakeRect.y + j, SNAKE_WIDTH, SNAKE_HEIGHT);
+      setRect(&smoothHead, grid[i][0].x, head->snakeRect.y + j, SNAKE_WIDTH, SNAKE_HEIGHT);
     }
     else if (head->dir.dy == 0){
       j = indice(head->snakeRect.y, SNAKE_HEIGHT);
       if (head->dir.dx == -1){
         i = - SNAKE_WIDTH;
       }
-      setRect(&r, head->snakeRect.x + i, grid[0][j].y, SNAKE_WIDTH, SNAKE_HEIGHT);
+      setRect(&smoothHead, head->snakeRect.x + i, grid[0][j].y, SNAKE_WIDTH, SNAKE_HEIGHT);
     }
 
     /* update aligned (to the grid) positions */
     if (head->dir.dx == -1){
-      head->snakeRect.x = r.x + SNAKE_WIDTH;
+      head->snakeRect.x = smoothHead.x + SNAKE_WIDTH;
     }
     else if (head->dir.dx == 1){
-      head->snakeRect.x = r.x;
+      head->snakeRect.x = smoothHead.x;
     }
     if (head->dir.dy == -1){
-      head->snakeRect.y = r.y + SNAKE_WIDTH;
+      head->snakeRect.y = smoothHead.y + SNAKE_WIDTH;
     }
     else if (head->dir.dy == 1){
-      head->snakeRect.y = r.y;
+      head->snakeRect.y = smoothHead.y;
     }
 
-
-
-
-    /* display */
+    /* display the aligned head to smoothen the front movement*/
     SDL_RenderClear(screen);
-    SDL_RenderCopy(screen, texture0, NULL, food);
-    SDL_RenderCopy(screen, texture, NULL, &r);
-    //SDL_RenderCopy(screen, texture, NULL, &r0);
+    SDL_RenderCopy(screen, foodTexture, NULL, food);
+    SDL_RenderCopy(screen, snakeTexture, NULL, &smoothHead);
 
     /* display the snake blocks contained in the file */
     Element *element = body->head;
     while (element != NULL){
-      SDL_RenderCopy(screen, texture, NULL, &element->pos);
+      SDL_RenderCopy(screen, snakeTexture, NULL, &element->pos);
       element = element->nextPos;
     }
     SDL_RenderPresent(screen);

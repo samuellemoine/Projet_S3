@@ -17,8 +17,7 @@
 #define FOOD_WIDTH        8
 #define FOOD_HEIGHT       8
 #define VELOCITY          1
-#define LEVEL             7
-#define ADJUST_LEVEL      15
+#define ADJUST_LEVEL      10
 #define NBX               SCREEN_WIDTH / SNAKE_WIDTH
 #define NBY               SCREEN_HEIGHT / SNAKE_HEIGHT
 
@@ -59,6 +58,27 @@ struct Dir {
   axe down;
 };
 
+/* function and method profiles for file.c */
+file* initialize();
+int fileSize(file *);
+void fileIn(file *, SDL_Rect *);
+void fileOut(file *);
+SDL_Rect fileTail(file *);
+SDL_Rect fileNb(file *, int);
+SDL_Rect fileHead(file *);
+void drawSnake(file *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Rect *, SDL_Rect [NBX][NBY]);
+
+
+/* function and method profiles for snake.c */
 void setRect(SDL_Rect *, int, int, int, int);
+void setDir(axe *, axe *);
+void reset(bool *, bool *, bool *, bool *, snake *, file *, SDL_Rect *, SDL_Rect [NBX][NBY]);
+void handleMenu(bool *, SDL_Event *, SDL_Renderer *, SDL_Surface *[], SDL_Rect *, int *);
+void handleKeys(const Uint8 *, snake *, dir *, bool *, bool *);
 int indice(int, int);
 bool validRand(file *, int, int);
+SDL_Rect randFood(file *);
+bool isSameDir(axe *, axe *);
+bool snakeContact(file *);
+bool foodContact(SDL_Rect *, SDL_Rect *);
+void move(snake *, SDL_Rect [NBX][NBY], file *, SDL_Rect *, bool *, bool *, int *);
