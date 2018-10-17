@@ -1,7 +1,7 @@
 CC = gcc
 SRC = file.c snake.c main.c headers.h
 CFLAGS = -W -Wall -ansi -g -std=c99
-LDFLAGS = `sdl2-config --cflags --libs` -lSDL_ttf
+LDFLAGS = `sdl2-config --cflags --libs` -lSDL2_ttf
 all: game
 game: main.o snake.o file.o headers.h
 	$(CC)  main.o snake.o file.o $(LDFLAGS) -o game
