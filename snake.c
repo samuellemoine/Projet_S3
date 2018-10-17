@@ -103,28 +103,12 @@ int indice(int coord, int size){
   return i;
 }
 
-
-SDL_Rect randFood(queue *body){
-  int randx = rand()%(NBX);
-  int randy = rand()%(NBY);
-  if (!validRand(body, randx, randy)){
-    return randFood(body);
-  }
-  SDL_Rect r = {randx * SNAKE_WIDTH, randy * SNAKE_HEIGHT + TOP_BAR, SNAKE_WIDTH, SNAKE_HEIGHT };
-  return r;
-}
-
-
-
 bool foodContact(SDL_Rect *head, SDL_Rect *food){
   if ( indice(food->x, SNAKE_WIDTH) == indice(head->x, SNAKE_WIDTH) && indice(food->y, SNAKE_HEIGHT) == indice(head->y, SNAKE_HEIGHT)){
         return true;
   }
   return false;
 }
-
-
-
 
 
 void move(snake *head, SDL_Rect grid[NBX][NBY], queue *body, SDL_Rect *food, bool *gameover, bool *dirChanged, int *level){

@@ -61,8 +61,10 @@ int queueSize(queue *);
 void queueIn(queue *, SDL_Rect *);
 void queueOut(queue *);
 SDL_Rect queueBack(queue *);
-SDL_Rect queueNb(queue *, int);
 SDL_Rect queueTail(queue *);
+SDL_Rect randFood(queue *);
+bool validRand(queue *, int, int);
+bool snakeContact(queue *);
 void drawSnake(queue *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Rect *, int, TTF_Font*, SDL_Rect [NBX][NBY]);
 
 
@@ -74,9 +76,5 @@ void reset(bool *, bool *, bool *, bool *, snake *, queue *, SDL_Rect *, SDL_Rec
 void handleMenu(bool *, SDL_Event *, SDL_Renderer *, SDL_Surface *[], SDL_Rect *, int *);
 void handleKeys(const Uint8 *, snake *, dir *, bool *, bool *);
 int indice(int, int);
-bool validRand(queue *, int, int);
-SDL_Rect randFood(queue *);
-bool isSameDir(axe *, axe *);
-bool snakeContact(queue *);
 bool foodContact(SDL_Rect *, SDL_Rect *);
 void move(snake *, SDL_Rect [NBX][NBY], queue *, SDL_Rect *, bool *, bool *, int *);

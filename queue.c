@@ -67,7 +67,15 @@ SDL_Rect queueFront(queue *body){
   return body->head->pos;
 }
 
-
+SDL_Rect randFood(queue *body){
+  int randx = rand()%(NBX);
+  int randy = rand()%(NBY);
+  if (!validRand(body, randx, randy)){
+    return randFood(body);
+  }
+  SDL_Rect r = {randx * SNAKE_WIDTH, randy * SNAKE_HEIGHT + TOP_BAR, SNAKE_WIDTH, SNAKE_HEIGHT };
+  return r;
+}
 
 bool validRand(queue *body, int x, int y){
   Element *element = body->head;
