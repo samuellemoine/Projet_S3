@@ -27,8 +27,8 @@ struct Element {
 };
 
 
-typedef struct File file;
-struct File {
+typedef struct Queue queue;
+struct Queue {
     Element *head;
 };
 
@@ -56,27 +56,27 @@ struct Dir {
 };
 
 /* function and method profiles for file.c */
-file* initialize();
-int fileSize(file *);
-void fileIn(file *, SDL_Rect *);
-void fileOut(file *);
-SDL_Rect fileTail(file *);
-SDL_Rect fileNb(file *, int);
-SDL_Rect fileHead(file *);
-void drawSnake(file *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Rect *, int, TTF_Font*, SDL_Rect [NBX][NBY]);
+queue* initialize();
+int queueSize(queue *);
+void queueIn(queue *, SDL_Rect *);
+void queueOut(queue *);
+SDL_Rect queueBack(queue *);
+SDL_Rect queueNb(queue *, int);
+SDL_Rect queueTail(queue *);
+void drawSnake(queue *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Rect *, int, TTF_Font*, SDL_Rect [NBX][NBY]);
 
 
 /* function and method profiles for snake.c */
 void timeout(int);
 void setRect(SDL_Rect *, int, int, int, int);
 void setDir(axe *, axe *);
-void reset(bool *, bool *, bool *, bool *, snake *, file *, SDL_Rect *, SDL_Rect [NBX][NBY]);
+void reset(bool *, bool *, bool *, bool *, snake *, queue *, SDL_Rect *, SDL_Rect [NBX][NBY]);
 void handleMenu(bool *, SDL_Event *, SDL_Renderer *, SDL_Surface *[], SDL_Rect *, int *);
 void handleKeys(const Uint8 *, snake *, dir *, bool *, bool *);
 int indice(int, int);
-bool validRand(file *, int, int);
-SDL_Rect randFood(file *);
+bool validRand(queue *, int, int);
+SDL_Rect randFood(queue *);
 bool isSameDir(axe *, axe *);
-bool snakeContact(file *);
+bool snakeContact(queue *);
 bool foodContact(SDL_Rect *, SDL_Rect *);
-void move(snake *, SDL_Rect [NBX][NBY], file *, SDL_Rect *, bool *, bool *, int *);
+void move(snake *, SDL_Rect [NBX][NBY], queue *, SDL_Rect *, bool *, bool *, int *);

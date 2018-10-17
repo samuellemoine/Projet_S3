@@ -40,9 +40,9 @@ int main(int argc, char *argv[]){
   SDL_Rect food;
 
 
-  file *body = initialize();  /* file of SDL_Rect contains grid coordinates
+  queue *body = initialize();  /* file of SDL_Rect contains grid coordinates
                                             making the body follow the head */
-  fileIn(body, &head.snakeRect);
+  queueIn(body, &head.snakeRect);
 
   bool playing = true;    /* controls main loop */
 

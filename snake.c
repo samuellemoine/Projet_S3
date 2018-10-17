@@ -18,19 +18,19 @@ void setDir(axe *currentDir, axe *dir){
   currentDir->dy = dir->dy;
 }
 
-void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, snake *head, file *body, SDL_Rect *food, SDL_Rect grid[NBX][NBY]){
+void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, snake *head, queue *body, SDL_Rect *food, SDL_Rect grid[NBX][NBY]){
     *started = false;
     *pause = true;
     *gameover = false;
     *dirChanged = false;
     axe ini = {0, 0};
-    while (fileSize(body) != 0){
-      fileOut(body);
+    while (queueSize(body) != 0){
+      queueOut(body);
     }
     setRect(&head->snakeRect, grid[NBX/2][NBY/2].x, grid[NBX/2][NBY/2].y, SNAKE_WIDTH, SNAKE_HEIGHT);
     setDir(&head->dir, &ini);
-    fileIn(body, &head->snakeRect);
-    fileOut(body);
+    queueIn(body, &head->snakeRect);
+    queueOut(body);
     *food = randFood(body);
 
 }
@@ -103,19 +103,8 @@ int indice(int coord, int size){
   return i;
 }
 
-bool validRand(file *body, int x, int y){
-  Element *element = body->head;
-  while (element != NULL){
-    if (element->pos.x / SNAKE_WIDTH == x && (element->pos.y - TOP_BAR) / SNAKE_HEIGHT == y){
-      return false;
-    }
-    element = element->nextPos;
-  }
 
-  return true;
-}
-
-SDL_Rect randFood(file *body){
+SDL_Rect randFood(queue *body){
   int randx = rand()%(NBX);
   int randy = rand()%(NBY);
   if (!validRand(body, randx, randy)){
@@ -125,30 +114,6 @@ SDL_Rect randFood(file *body){
   return r;
 }
 
-
-
-
-bool isSameDir(axe *currentDir, axe *dir){
-  return currentDir->dx == dir->dx && currentDir->dy == dir->dy;
-}
-
-bool snakeContact(file *body){
-
-  Element *element = body->head;
-  SDL_Rect head = fileTail(body);
-
-  int hx = indice(head.x, SNAKE_WIDTH);
-  int hy = indice(head.y, SNAKE_HEIGHT);
-
-  while (element->nextPos != NULL){
-    if (indice(element->pos.x, SNAKE_WIDTH) == hx
-        && indice(element->pos.y, SNAKE_HEIGHT) == hy){
-      return true;
-    }
-    element = element->nextPos;
-  }
-  return false;
-}
 
 
 bool foodContact(SDL_Rect *head, SDL_Rect *food){
@@ -162,13 +127,13 @@ bool foodContact(SDL_Rect *head, SDL_Rect *food){
 
 
 
-void move(snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL_Rect *food, bool *gameover, bool *dirChanged, int *level){
+void move(snake *head, SDL_Rect grid[NBX][NBY], queue *body, SDL_Rect *food, bool *gameover, bool *dirChanged, int *level){
   timeout(ADJUST_LEVEL - *level);
 
   bool headMoved, eats, isInLimits;
   int tmpPosX, tmpPosY;
   int xx = -1; int yy = -1;
-  SDL_Rect currentHead = fileTail(body);  /* SDL_Rect of the snake's head */
+  SDL_Rect currentHead = queueBack(body);  /* SDL_Rect of the snake's head */
 
   /* update temporary positons */
   tmpPosX = head->snakeRect.x;
@@ -210,12 +175,12 @@ void move(snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL_Rect *food, bool
   if (isInLimits && headMoved){
     *dirChanged = false;
     if (eats){
-      fileIn(body, &grid[xx][yy]);
+      queueIn(body, &grid[xx][yy]);
       *food = randFood(body);
     }
     else{
-      fileIn(body, &grid[xx][yy]);
-      fileOut(body);
+      queueIn(body, &grid[xx][yy]);
+      queueOut(body);
     }
     if (snakeContact(body)){
       *gameover = true;
