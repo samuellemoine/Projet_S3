@@ -12,6 +12,7 @@
 #define SCREEN_HEIGHT     500
 #define SNAKE_WIDTH       25
 #define SNAKE_HEIGHT      25
+#define TOP_BAR           SNAKE_WIDTH * 3
 #define FOOD_WIDTH        8
 #define FOOD_HEIGHT       8
 #define VELOCITY          1
@@ -20,16 +21,14 @@
 #define NBY               SCREEN_HEIGHT / SNAKE_HEIGHT
 
 typedef struct Element Element;
-struct Element
-{
+struct Element {
     SDL_Rect pos;
     Element *nextPos;
 };
 
 
 typedef struct File file;
-struct File
-{
+struct File {
     Element *head;
 };
 
@@ -64,7 +63,7 @@ void fileOut(file *);
 SDL_Rect fileTail(file *);
 SDL_Rect fileNb(file *, int);
 SDL_Rect fileHead(file *);
-void drawSnake(file *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Rect *, SDL_Rect [NBX][NBY]);
+void drawSnake(file *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Rect *, int, TTF_Font*, SDL_Rect [NBX][NBY]);
 
 
 /* function and method profiles for snake.c */

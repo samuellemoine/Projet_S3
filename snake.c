@@ -121,7 +121,7 @@ SDL_Rect randFood(file *body){
   if (!validRand(body, randx, randy)){
     return randFood(body);
   }
-  SDL_Rect r = {randx * SNAKE_WIDTH, randy * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT };
+  SDL_Rect r = {randx * SNAKE_WIDTH, randy * SNAKE_HEIGHT + TOP_BAR, SNAKE_WIDTH, SNAKE_HEIGHT };
   return r;
 }
 
@@ -183,34 +183,33 @@ void move(snake *head, SDL_Rect grid[NBX][NBY], file *body, SDL_Rect *food, bool
   else if (tmpPosX >= SCREEN_WIDTH - SNAKE_WIDTH){
     head->snakeRect.x = 0;
   }
-  if (tmpPosY < 0){
-    head->snakeRect.y = SCREEN_HEIGHT;
+  if (tmpPosY < TOP_BAR){
+    head->snakeRect.y = SCREEN_HEIGHT + TOP_BAR;
   }
-  else if (tmpPosY >= SCREEN_HEIGHT - SNAKE_HEIGHT){
-    head->snakeRect.y = 0;
+  else if (tmpPosY >= SCREEN_HEIGHT + TOP_BAR - SNAKE_HEIGHT){
+    head->snakeRect.y = TOP_BAR;
   }
 
   /* apply temporary positions whe tmpPos within limits */
   if (tmpPosX >= 0 && tmpPosX < SCREEN_WIDTH){
     head->snakeRect.x = tmpPosX;
   }
-  if (tmpPosY >= 0 && tmpPosY < SCREEN_HEIGHT){
+  if (tmpPosY >= TOP_BAR && tmpPosY < SCREEN_HEIGHT + TOP_BAR){
     head->snakeRect.y = tmpPosY;
   }
   /* determine position in the grid */
   xx = indice(head->snakeRect.x, SNAKE_WIDTH);
-  yy = indice(head->snakeRect.y, SNAKE_HEIGHT);
+  yy = indice(head->snakeRect.y - TOP_BAR, SNAKE_HEIGHT);
 
 
   /* setting the three necessary booleans to move the snake */
   eats = foodContact(&head->snakeRect, food);
-  headMoved = (indice(currentHead.x, SNAKE_WIDTH) != xx) || (indice(currentHead.y, SNAKE_HEIGHT) != yy);
+  headMoved = (indice(currentHead.x, SNAKE_WIDTH) != xx) || (indice(currentHead.y - TOP_BAR, SNAKE_HEIGHT) != yy);
   isInLimits = xx >= 0 && xx < NBX && yy >= 0 && yy < NBY;
 
   if (isInLimits && headMoved){
     *dirChanged = false;
     if (eats){
-      printf("Score: %d\n", (*level + 1) * (fileSize(body) + 1));
       fileIn(body, &grid[xx][yy]);
       *food = randFood(body);
     }

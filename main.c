@@ -2,17 +2,20 @@
 
 int main(int argc, char *argv[]){
 
-  if (SDL_Init(SDL_INIT_VIDEO) != 0){   //initialisation de la SDL
+  if (SDL_Init(SDL_INIT_VIDEO) != 0 || TTF_Init() != 0){   //initialisation de la SDL
     printf("SDL Initialisation failed ! : %s", SDL_GetError());
     SDL_Quit();
     return EXIT_FAILURE;
   }
 
   SDL_Window *window = SDL_CreateWindow("Snake", SDL_WINDOWPOS_CENTERED,
-           SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+           SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, TOP_BAR + SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
            /* create the renderer */
   SDL_Renderer *screen  = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-
+  TTF_Font *font = TTF_OpenFont("old_school_united_regular.ttf", TOP_BAR);
+  if (!font){
+    printf("Error while opening font: %s\n", TTF_GetError());
+  }
   if (window == NULL || screen == NULL){
     printf("Window creation failed ! : %s", SDL_GetError());
     SDL_Quit();
@@ -29,7 +32,7 @@ int main(int argc, char *argv[]){
   SDL_Rect grid[NBX][NBY];   /* fixed positions of the snake */
   for (int i = 0; i < NBX; i++){
     for (int j = 0; j < NBY; j++){
-      setRect(&grid[i][j], i * SNAKE_WIDTH, j * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT);
+      setRect(&grid[i][j], i * SNAKE_WIDTH, TOP_BAR + j * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT);
     }
   }
 
@@ -55,7 +58,7 @@ int main(int argc, char *argv[]){
 
 
   /* level selector position */
-  SDL_Rect levelRect = { (SCREEN_WIDTH - 300) / 2, (SCREEN_HEIGHT - 30) / 4, 300, 30 };
+  SDL_Rect levelRect = { (SCREEN_WIDTH - 400) / 2, (SCREEN_HEIGHT - 40) / 4, 400, 40 };
 
   /* load all images needed for the game */
   SDL_Surface *snakeSurface = SDL_LoadBMP("rect.bmp");
@@ -83,7 +86,7 @@ int main(int argc, char *argv[]){
   while(playing){
     if (!gameover && started){
       handleKeys(keyboardState, &head, &direction, &pause, &dirChanged);
-      drawSnake(body, &head, screen, snakeTexture, foodTexture, &food, grid);
+      drawSnake(body, &head, screen, snakeTexture, foodTexture, &food, level, font, grid);
       if (!pause){
         move(&head, grid, body, &food, &gameover, &dirChanged, &level);
       }
@@ -126,6 +129,8 @@ int main(int argc, char *argv[]){
     SDL_DestroyTexture(snakeTexture);
     SDL_DestroyTexture(foodTexture);
     SDL_DestroyWindow(window);
+
+    TTF_CloseFont(font);
     SDL_Quit();
     return 0;
 }
