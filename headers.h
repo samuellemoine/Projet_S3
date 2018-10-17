@@ -55,26 +55,31 @@ struct Dir {
   axe down;
 };
 
-/* function and method profiles for file.c */
+/* function and method profiles for queue.c */
 queue* initialize();
 int queueSize(queue *);
 void queueIn(queue *, SDL_Rect *);
 void queueOut(queue *);
 SDL_Rect queueBack(queue *);
 SDL_Rect queueTail(queue *);
-SDL_Rect randFood(queue *);
-bool validRand(queue *, int, int);
+SDL_Rect randFood(queue *, queue *);
+bool validRand(queue *, queue *, int, int);
 bool snakeContact(queue *);
-void drawSnake(queue *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Rect *, int, TTF_Font*, SDL_Rect [NBX][NBY]);
+bool mazeContact(snake *, queue *);
+void drawSnake(queue *, queue *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Rect *, int, TTF_Font*, SDL_Rect [NBX][NBY]);
 
 
 /* function and method profiles for snake.c */
 void timeout(int);
 void setRect(SDL_Rect *, int, int, int, int);
 void setDir(axe *, axe *);
-void reset(bool *, bool *, bool *, bool *, snake *, queue *, SDL_Rect *, SDL_Rect [NBX][NBY]);
-void handleMenu(bool *, SDL_Event *, SDL_Renderer *, SDL_Surface *[], SDL_Rect *, int *);
+void reset(bool *, bool *, bool *, bool *, snake *, queue *, queue *, SDL_Rect *, SDL_Rect [NBX][NBY]);
+void handleMenu(queue *, bool *, SDL_Event *, SDL_Renderer *, SDL_Surface *[], SDL_Rect *, int *, int *, SDL_Rect [NBX][NBY]);
 void handleKeys(const Uint8 *, snake *, dir *, bool *, bool *);
 int indice(int, int);
 bool foodContact(SDL_Rect *, SDL_Rect *);
-void move(snake *, SDL_Rect [NBX][NBY], queue *, SDL_Rect *, bool *, bool *, int *);
+void move(snake *, SDL_Rect [NBX][NBY], queue *, queue *, SDL_Rect *, bool *, bool *, int *);
+
+/* function and method profiles for file.c */
+void readMazeFile(char*, char [NBX][NBY]);
+void putInMaze(queue *, SDL_Rect [NBX][NBY], char [NBX][NBY]);

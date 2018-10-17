@@ -18,7 +18,7 @@ void setDir(axe *currentDir, axe *dir){
   currentDir->dy = dir->dy;
 }
 
-void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, snake *head, queue *body, SDL_Rect *food, SDL_Rect grid[NBX][NBY]){
+void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, snake *head, queue *body, queue *mazeq, SDL_Rect *food, SDL_Rect grid[NBX][NBY]){
     *started = false;
     *pause = true;
     *gameover = false;
@@ -31,15 +31,16 @@ void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, snake *
     setDir(&head->dir, &ini);
     queueIn(body, &head->snakeRect);
     queueOut(body);
-    *food = randFood(body);
+    *food = randFood(body, mazeq);
 
 }
 
-void handleMenu(bool *started, SDL_Event *event, SDL_Renderer *screen, SDL_Surface *levelSurface[], SDL_Rect *levelRect, int *level){
+void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *screen, SDL_Surface *levelSurface[], SDL_Rect *levelRect, int *level, int *mazeSelector, SDL_Rect grid[NBX][NBY]){
   SDL_Texture *levelTexture = SDL_CreateTextureFromSurface(screen, levelSurface[*level]);
   SDL_RenderClear(screen);
   SDL_RenderCopy(screen, levelTexture, NULL, levelRect);
   SDL_RenderPresent(screen);
+  char lines[NBX][NBY];
   if(event->type == SDL_KEYDOWN){
     switch (event->key.keysym.sym){
       case SDLK_LEFT:
@@ -53,11 +54,19 @@ void handleMenu(bool *started, SDL_Event *event, SDL_Renderer *screen, SDL_Surfa
         }
       break;
       case SDLK_UP:
+        *mazeSelector -= 1;
       break;
       case SDLK_DOWN:
+        *mazeSelector += 1;
       break;
       case SDLK_RETURN:
         *started = true;
+        switch (*mazeSelector){
+          case 1:
+            readMazeFile("maze1.txt", lines);
+            putInMaze(mazeq, grid, lines);
+          break;
+        }
         break;
     }
   }
@@ -111,7 +120,7 @@ bool foodContact(SDL_Rect *head, SDL_Rect *food){
 }
 
 
-void move(snake *head, SDL_Rect grid[NBX][NBY], queue *body, SDL_Rect *food, bool *gameover, bool *dirChanged, int *level){
+void move(snake *head, SDL_Rect grid[NBX][NBY], queue *body, queue *mazeq, SDL_Rect *food, bool *gameover, bool *dirChanged, int *level){
   timeout(ADJUST_LEVEL - *level);
 
   bool headMoved, eats, isInLimits;
@@ -160,13 +169,13 @@ void move(snake *head, SDL_Rect grid[NBX][NBY], queue *body, SDL_Rect *food, boo
     *dirChanged = false;
     if (eats){
       queueIn(body, &grid[xx][yy]);
-      *food = randFood(body);
+      *food = randFood(body, mazeq);
     }
     else{
       queueIn(body, &grid[xx][yy]);
       queueOut(body);
     }
-    if (snakeContact(body)){
+    if (snakeContact(body) || mazeContact(head, mazeq)){
       *gameover = true;
     }
   }

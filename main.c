@@ -22,11 +22,6 @@ int main(int argc, char *argv[]){
     return EXIT_FAILURE;
   }
 
-
-  const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);  /* pointer to an array of key states */
-
-  srand(time(0));             /* initiate the Pseudo-Random Number Generator */
-
   /* { axe.dx, axe.dy }   left,   right,    up,     down */
   dir direction     = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
   SDL_Rect grid[NBX][NBY];   /* fixed positions of the snake */
@@ -35,6 +30,12 @@ int main(int argc, char *argv[]){
       setRect(&grid[i][j], i * SNAKE_WIDTH, TOP_BAR + j * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT);
     }
   }
+
+
+  const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);  /* pointer to an array of key states */
+
+  srand(time(0));             /* initiate the Pseudo-Random Number Generator */
+
 
   snake head;               /* head.dir and head.snakeRect initiate the movement */
   SDL_Rect food;
@@ -51,10 +52,11 @@ int main(int argc, char *argv[]){
   bool gameover; /* stops the snake from moving on on collision */
   bool dirChanged;
   SDL_Event event;
-
-  reset(&started, &pause, &gameover, &dirChanged, &head, body, &food, grid);
+  queue *mazeq = initialize();
+  reset(&started, &pause, &gameover, &dirChanged, &head, body, mazeq, &food, grid);
 
   int level = 5;
+  int mazeSelector = 0;
 
 
   /* level selector position */
@@ -86,9 +88,9 @@ int main(int argc, char *argv[]){
   while(playing){
     if (!gameover && started){
       handleKeys(keyboardState, &head, &direction, &pause, &dirChanged);
-      drawSnake(body, &head, screen, snakeTexture, foodTexture, &food, level, font, grid);
+      drawSnake(body, mazeq, &head, screen, snakeTexture, foodTexture, &food, level, font, grid);
       if (!pause){
-        move(&head, grid, body, &food, &gameover, &dirChanged, &level);
+        move(&head, grid, body, mazeq, &food, &gameover, &dirChanged, &level);
       }
     }
 
@@ -97,12 +99,12 @@ int main(int argc, char *argv[]){
       /* reset to initial variables when game is over */
       if (gameover){
         if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_RETURN){
-          reset(&started, &pause, &gameover, &dirChanged, &head, body, &food, grid);
+          reset(&started, &pause, &gameover, &dirChanged, &head, body, mazeq, &food, grid);
         }
       }
       /* menu selector */
       if (!started){
-        handleMenu(&started, &event, screen, s, &levelRect, &level);
+        handleMenu(mazeq, &started, &event, screen, s, &levelRect, &level, &mazeSelector, grid);
       }
       /* quit the game */
       if (event.type == SDL_QUIT || keyboardState[SDL_SCANCODE_ESCAPE]){
@@ -131,6 +133,13 @@ int main(int argc, char *argv[]){
     SDL_DestroyWindow(window);
 
     TTF_CloseFont(font);
+
+    while (body->head != NULL){
+      queueOut(body);
+    }
+    while (mazeq->head != NULL){
+      queueOut(mazeq);
+    }
     SDL_Quit();
     return 0;
 }

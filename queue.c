@@ -6,7 +6,6 @@ queue* initialize(){
   return body;
 }
 
-
 int queueSize(queue *body){
   int i = 0;
   Element *element = body->head;
@@ -67,18 +66,25 @@ SDL_Rect queueFront(queue *body){
   return body->head->pos;
 }
 
-SDL_Rect randFood(queue *body){
+SDL_Rect randFood(queue *body, queue *mazeq){
   int randx = rand()%(NBX);
   int randy = rand()%(NBY);
-  if (!validRand(body, randx, randy)){
-    return randFood(body);
+  if (!validRand(body, mazeq, randx, randy)){
+    return randFood(body, mazeq);
   }
   SDL_Rect r = {randx * SNAKE_WIDTH, randy * SNAKE_HEIGHT + TOP_BAR, SNAKE_WIDTH, SNAKE_HEIGHT };
   return r;
 }
 
-bool validRand(queue *body, int x, int y){
+bool validRand(queue *body, queue *mazeq, int x, int y){
   Element *element = body->head;
+  while (element != NULL){
+    if (element->pos.x / SNAKE_WIDTH == x && (element->pos.y - TOP_BAR) / SNAKE_HEIGHT == y){
+      return false;
+    }
+    element = element->nextPos;
+  }
+  element = mazeq->head;
   while (element != NULL){
     if (element->pos.x / SNAKE_WIDTH == x && (element->pos.y - TOP_BAR) / SNAKE_HEIGHT == y){
       return false;
@@ -90,7 +96,6 @@ bool validRand(queue *body, int x, int y){
 }
 
 bool snakeContact(queue *body){
-
   Element *element = body->head;
   SDL_Rect head = queueBack(body);
 
@@ -98,8 +103,7 @@ bool snakeContact(queue *body){
   int hy = indice(head.y, SNAKE_HEIGHT);
 
   while (element->nextPos != NULL){
-    if (indice(element->pos.x, SNAKE_WIDTH) == hx
-        && indice(element->pos.y, SNAKE_HEIGHT) == hy){
+    if (indice(element->pos.x, SNAKE_WIDTH) == hx && indice(element->pos.y, SNAKE_HEIGHT) == hy){
       return true;
     }
     element = element->nextPos;
@@ -107,8 +111,18 @@ bool snakeContact(queue *body){
   return false;
 }
 
+bool mazeContact(snake *head, queue *mazeq){
+  Element *element = mazeq->head;
+  while (element != NULL){
+    if ( indice(element->pos.x, SNAKE_WIDTH) == indice(head->snakeRect.x, SNAKE_WIDTH) && indice(element->pos.y, SNAKE_HEIGHT) == indice(head->snakeRect.y, SNAKE_HEIGHT)){
+      return true;
+    }
+    element = element->nextPos;
+  }
+  return false;
+}
 
-void drawSnake(queue *body, snake *head, SDL_Renderer *screen, SDL_Texture *snakeTexture, SDL_Texture *foodTexture, SDL_Rect *food, int level, TTF_Font *font, SDL_Rect grid[NBX][NBY]){
+void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL_Texture *snakeTexture, SDL_Texture *foodTexture, SDL_Rect *food, int level, TTF_Font *font, SDL_Rect grid[NBX][NBY]){
     if (body == NULL){
         exit(EXIT_FAILURE);
     }
@@ -166,6 +180,11 @@ void drawSnake(queue *body, snake *head, SDL_Renderer *screen, SDL_Texture *snak
 
     /* display the snake blocks contained in the queue */
     Element *element = body->head;
+    while (element != NULL){
+      SDL_RenderCopy(screen, snakeTexture, NULL, &element->pos);
+      element = element->nextPos;
+    }
+    element = mazeq->head;
     while (element != NULL){
       SDL_RenderCopy(screen, snakeTexture, NULL, &element->pos);
       element = element->nextPos;
