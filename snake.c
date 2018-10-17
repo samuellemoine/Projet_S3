@@ -106,7 +106,7 @@ int indice(int coord, int size){
 bool validRand(file *body, int x, int y){
   Element *element = body->head;
   while (element != NULL){
-    if (element->pos.x / SNAKE_WIDTH == x && element->pos.y / SNAKE_HEIGHT == y){
+    if (element->pos.x / SNAKE_WIDTH == x && (element->pos.y - TOP_BAR) / SNAKE_HEIGHT == y){
       return false;
     }
     element = element->nextPos;
