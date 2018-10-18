@@ -122,7 +122,7 @@ bool mazeContact(snake *head, queue *mazeq){
   return false;
 }
 
-void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL_Texture *snakeTexture, SDL_Texture *foodTexture, SDL_Rect *food, int level, TTF_Font *font, SDL_Rect grid[NBX][NBY]){
+void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL_Texture *snakeTexture, SDL_Texture *wallTexture, SDL_Texture *foodTexture, SDL_Rect *food, int level, TTF_Font *font, SDL_Rect grid[NBX][NBY]){
     if (body == NULL){
         exit(EXIT_FAILURE);
     }
@@ -186,7 +186,7 @@ void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL
     }
     element = mazeq->head;
     while (element != NULL){
-      SDL_RenderCopy(screen, snakeTexture, NULL, &element->pos);
+      SDL_RenderCopy(screen, wallTexture, NULL, &element->pos);
       element = element->nextPos;
     }
     SDL_RenderPresent(screen);

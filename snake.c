@@ -87,6 +87,10 @@ void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *scr
             readMazeFile("maze1.txt", lines);
             putInMaze(mazeq, grid, lines);
           break;
+	  case 2:
+	    readMazeFile("maze2.txt", lines);
+	    putInMaze(mazeq, grid, lines);
+	  break;
         }
         break;
     }

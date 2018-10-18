@@ -66,7 +66,7 @@ SDL_Rect randFood(queue *, queue *);
 bool validRand(queue *, queue *, int, int);
 bool snakeContact(queue *);
 bool mazeContact(snake *, queue *);
-void drawSnake(queue *, queue *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Rect *, int, TTF_Font*, SDL_Rect [NBX][NBY]);
+void drawSnake(queue *, queue *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Texture *, SDL_Rect *, int, TTF_Font*, SDL_Rect [NBX][NBY]);
 
 
 /* function and method profiles for snake.c */
@@ -83,3 +83,4 @@ void move(snake *, SDL_Rect [NBX][NBY], queue *, queue *, SDL_Rect *, bool *, bo
 /* function and method profiles for file.c */
 void readMazeFile(char*, char [NBX][NBY]);
 void putInMaze(queue *, SDL_Rect [NBX][NBY], char [NBX][NBY]);
+

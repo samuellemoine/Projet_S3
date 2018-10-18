@@ -64,6 +64,7 @@ int main(int argc, char *argv[]){
 
   /* load all images needed for the game */
   SDL_Surface *snakeSurface = SDL_LoadBMP("rect.bmp");
+  SDL_Surface *wallSurface = SDL_LoadBMP("wall.bmp");
   SDL_Surface *foodSurface = SDL_LoadBMP("food.bmp");
   SDL_Surface *levelSurface1 = SDL_LoadBMP("level1.bmp");
   SDL_Surface *levelSurface2 = SDL_LoadBMP("level2.bmp");
@@ -86,6 +87,7 @@ int main(int argc, char *argv[]){
   SDL_Surface *mazeSurfaces[4] = {mazeSurface1, mazeSurface2, mazeSurface3, mazeSurface4};
 
   SDL_Texture *snakeTexture = SDL_CreateTextureFromSurface(screen, snakeSurface);
+  SDL_Texture *wallTexture = SDL_CreateTextureFromSurface(screen, wallSurface);
   SDL_Texture *foodTexture = SDL_CreateTextureFromSurface(screen, foodSurface);
 
   SDL_SetWindowIcon(window, snakeSurface);
@@ -94,7 +96,7 @@ int main(int argc, char *argv[]){
   while(playing){
     if (!gameover && started){
       handleKeys(keyboardState, &head, &direction, &pause, &dirChanged);
-      drawSnake(body, mazeq, &head, screen, snakeTexture, foodTexture, &food, level, font, grid);
+      drawSnake(body, mazeq, &head, screen, snakeTexture, wallTexture, foodTexture, &food, level, font, grid);
       if (!pause){
         move(&head, grid, body, mazeq, &food, &gameover, &dirChanged, &level);
       }
@@ -123,6 +125,7 @@ int main(int argc, char *argv[]){
     //Quitter SDL
     SDL_DestroyRenderer(screen);
     SDL_FreeSurface(snakeSurface);
+    SDL_FreeSurface(wallSurface);
     SDL_FreeSurface(foodSurface);
     SDL_FreeSurface(levelSurface1);
     SDL_FreeSurface(levelSurface2);
