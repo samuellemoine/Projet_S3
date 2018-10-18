@@ -35,10 +35,15 @@ void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, snake *
 
 }
 
-void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *screen, SDL_Surface *levelSurface[], SDL_Rect *levelRect, int *level, int *mazeSelector, SDL_Rect grid[NBX][NBY]){
+void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *screen, SDL_Surface *levelSurface[], SDL_Surface *mazeSurface[], int *level, int *mazeSelector, SDL_Rect grid[NBX][NBY]){
+  /* level selector position */
+  SDL_Rect levelRect = { (SCREEN_WIDTH - 400) / 2, (SCREEN_HEIGHT - 40) / 4, 400, 40 };
   SDL_Texture *levelTexture = SDL_CreateTextureFromSurface(screen, levelSurface[*level]);
+  SDL_Rect mazeRect = { (SCREEN_WIDTH - 160) / 2, SCREEN_HEIGHT / 3, 160, 320 };
+  SDL_Texture *mazeTexture = SDL_CreateTextureFromSurface(screen, mazeSurface[*mazeSelector]);
   SDL_RenderClear(screen);
-  SDL_RenderCopy(screen, levelTexture, NULL, levelRect);
+  SDL_RenderCopy(screen, levelTexture, NULL, &levelRect);
+  SDL_RenderCopy(screen, mazeTexture, NULL, &mazeRect);
   SDL_RenderPresent(screen);
   char lines[NBX][NBY];
   if(event->type == SDL_KEYDOWN){
@@ -47,17 +52,33 @@ void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *scr
         if (*level > 0){
           *level -= 1;
         }
+        else{
+          *level = 9;
+        }
       break;
       case SDLK_RIGHT:
         if (*level < 9){
           *level += 1;
         }
+        else{
+          *level = 0;
+        }
       break;
       case SDLK_UP:
+      if (*mazeSelector > 0){
         *mazeSelector -= 1;
+      }
+      else{
+        *mazeSelector = 3;
+      }
       break;
       case SDLK_DOWN:
+      if (*mazeSelector < 3){
         *mazeSelector += 1;
+      }
+      else{
+        *mazeSelector = 0;
+      }
       break;
       case SDLK_RETURN:
         *started = true;
@@ -71,6 +92,7 @@ void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *scr
     }
   }
   SDL_DestroyTexture(levelTexture);
+  SDL_DestroyTexture(mazeTexture);
 }
 
 void handleKeys(const Uint8 *keyboardState, snake *head, dir *direction, bool *pause, bool *dirChanged){

@@ -74,7 +74,7 @@ void timeout(int);
 void setRect(SDL_Rect *, int, int, int, int);
 void setDir(axe *, axe *);
 void reset(bool *, bool *, bool *, bool *, snake *, queue *, queue *, SDL_Rect *, SDL_Rect [NBX][NBY]);
-void handleMenu(queue *, bool *, SDL_Event *, SDL_Renderer *, SDL_Surface *[], SDL_Rect *, int *, int *, SDL_Rect [NBX][NBY]);
+void handleMenu(queue *, bool *, SDL_Event *, SDL_Renderer *, SDL_Surface *[], SDL_Surface *[], int *, int *, SDL_Rect [NBX][NBY]);
 void handleKeys(const Uint8 *, snake *, dir *, bool *, bool *);
 int indice(int, int);
 bool foodContact(SDL_Rect *, SDL_Rect *);

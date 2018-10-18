@@ -25,8 +25,9 @@ int main(int argc, char *argv[]){
   /* { axe.dx, axe.dy }   left,   right,    up,     down */
   dir direction     = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
   SDL_Rect grid[NBX][NBY];   /* fixed positions of the snake */
-  for (int i = 0; i < NBX; i++){
-    for (int j = 0; j < NBY; j++){
+  int i; int j;
+  for (i = 0; i < NBX; i++){
+    for (j = 0; j < NBY; j++){
       setRect(&grid[i][j], i * SNAKE_WIDTH, TOP_BAR + j * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT);
     }
   }
@@ -59,8 +60,7 @@ int main(int argc, char *argv[]){
   int mazeSelector = 0;
 
 
-  /* level selector position */
-  SDL_Rect levelRect = { (SCREEN_WIDTH - 400) / 2, (SCREEN_HEIGHT - 40) / 4, 400, 40 };
+
 
   /* load all images needed for the game */
   SDL_Surface *snakeSurface = SDL_LoadBMP("rect.bmp");
@@ -76,8 +76,14 @@ int main(int argc, char *argv[]){
   SDL_Surface *levelSurface9 = SDL_LoadBMP("level9.bmp");
   SDL_Surface *levelSurface10 = SDL_LoadBMP("level10.bmp");
 
-  /* an array containing images of the level selctor */
-  SDL_Surface *s[10] = {levelSurface1, levelSurface2, levelSurface3, levelSurface4, levelSurface5, levelSurface6, levelSurface7, levelSurface8, levelSurface9, levelSurface10};
+  SDL_Surface *mazeSurface1 = SDL_LoadBMP("maze1.bmp");
+  SDL_Surface *mazeSurface2 = SDL_LoadBMP("maze2.bmp");
+  SDL_Surface *mazeSurface3 = SDL_LoadBMP("maze3.bmp");
+  SDL_Surface *mazeSurface4 = SDL_LoadBMP("maze4.bmp");
+
+  /* arrays containing image surfaces of the level and maze selctor */
+  SDL_Surface *levelSurfaces[10] = {levelSurface1, levelSurface2, levelSurface3, levelSurface4, levelSurface5, levelSurface6, levelSurface7, levelSurface8, levelSurface9, levelSurface10};
+  SDL_Surface *mazeSurfaces[4] = {mazeSurface1, mazeSurface2, mazeSurface3, mazeSurface4};
 
   SDL_Texture *snakeTexture = SDL_CreateTextureFromSurface(screen, snakeSurface);
   SDL_Texture *foodTexture = SDL_CreateTextureFromSurface(screen, foodSurface);
@@ -104,7 +110,7 @@ int main(int argc, char *argv[]){
       }
       /* menu selector */
       if (!started){
-        handleMenu(mazeq, &started, &event, screen, s, &levelRect, &level, &mazeSelector, grid);
+        handleMenu(mazeq, &started, &event, screen, levelSurfaces, mazeSurfaces, &level, &mazeSelector, grid);
       }
       /* quit the game */
       if (event.type == SDL_QUIT || keyboardState[SDL_SCANCODE_ESCAPE]){
@@ -128,6 +134,10 @@ int main(int argc, char *argv[]){
     SDL_FreeSurface(levelSurface8);
     SDL_FreeSurface(levelSurface9);
     SDL_FreeSurface(levelSurface10);
+    SDL_FreeSurface(mazeSurface1);
+    SDL_FreeSurface(mazeSurface2);
+    SDL_FreeSurface(mazeSurface3);
+    SDL_FreeSurface(mazeSurface4);
     SDL_DestroyTexture(snakeTexture);
     SDL_DestroyTexture(foodTexture);
     SDL_DestroyWindow(window);
