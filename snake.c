@@ -24,8 +24,11 @@ void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, snake *
     *gameover = false;
     *dirChanged = false;
     axe ini = {0, 0};
-    while (queueSize(body) != 0){
+    while (queueSize(body) > 0){
       queueOut(body);
+    }
+    while (queueSize(mazeq) >= 0){
+      queueOut(mazeq);
     }
     setRect(&head->snakeRect, grid[NBX/2][NBY/2].x, grid[NBX/2][NBY/2].y, SNAKE_WIDTH, SNAKE_HEIGHT);
     setDir(&head->dir, &ini);
@@ -87,10 +90,10 @@ void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *scr
             readMazeFile("maze1.txt", lines);
             putInMaze(mazeq, grid, lines);
           break;
-	  case 2:
-	    readMazeFile("maze2.txt", lines);
-	    putInMaze(mazeq, grid, lines);
-	  break;
+	        case 2:
+            readMazeFile("maze2.txt", lines);
+	          putInMaze(mazeq, grid, lines);
+	        break;
         }
         break;
     }

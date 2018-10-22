@@ -9,6 +9,9 @@ queue* initialize(){
 int queueSize(queue *body){
   int i = 0;
   Element *element = body->head;
+  if (element == NULL){
+    return -1;
+  }
   while (element->nextPos != NULL){
     i += 1;
     element = element->nextPos;
