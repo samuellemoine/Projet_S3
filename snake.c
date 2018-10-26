@@ -1,5 +1,19 @@
 #include "headers.h"
 
+SDL_Rect** allocate_Rect2D(int n, int m){
+  SDL_Rect** tab = malloc(n * sizeof(SDL_Rect*));
+  for (int i = 0; i < m; i++){
+    tab[i] = malloc(m * sizeof(SDL_Rect));
+  }
+  return tab;
+}
+
+void free_Rect2D(SDL_Rect** tab, int n){
+  for (int j = 0; j < n; j++){
+    free(tab[j]);
+  }
+}
+
 void timeout(int milliseconds){
     int milliseconds_since = clock() * 1000 / CLOCKS_PER_SEC;
     int end = milliseconds_since + milliseconds;
@@ -18,7 +32,7 @@ void setDir(axe *currentDir, axe *dir){
   currentDir->dy = dir->dy;
 }
 
-void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, snake *head, queue *body, queue *mazeq, SDL_Rect *food, SDL_Rect grid[NBX][NBY]){
+void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, snake *head, queue *body, queue *mazeq, SDL_Rect *food, SDL_Rect** grid){
     *started = false;
     *pause = true;
     *gameover = false;
@@ -38,7 +52,7 @@ void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, snake *
 
 }
 
-void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *screen, SDL_Surface *levelSurface[], SDL_Surface *mazeSurface[], int *level, int *mazeSelector, SDL_Rect grid[NBX][NBY]){
+void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *screen, SDL_Surface *levelSurface[], SDL_Surface *mazeSurface[], int *level, int *mazeSelector, SDL_Rect** grid){
   /* level selector position */
   SDL_Rect levelRect = { (SCREEN_WIDTH - 400) / 2, (SCREEN_HEIGHT - 40) / 4, 400, 40 };
   SDL_Texture *levelTexture = SDL_CreateTextureFromSurface(screen, levelSurface[*level]);
@@ -149,7 +163,7 @@ bool foodContact(SDL_Rect *head, SDL_Rect *food){
 }
 
 
-void move(snake *head, SDL_Rect grid[NBX][NBY], queue *body, queue *mazeq, SDL_Rect *food, bool *gameover, bool *dirChanged, int *level){
+void move(snake *head, SDL_Rect ** grid, queue *body, queue *mazeq, SDL_Rect *food, bool *gameover, bool *dirChanged, int *level){
   timeout(ADJUST_LEVEL - *level);
 
   bool headMoved, eats, isInLimits;

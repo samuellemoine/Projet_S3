@@ -17,7 +17,7 @@ void readMazeFile(char* str, char lines[NBX][NBY]){
   }
 }
 
-void putInMaze(queue *mazeq, SDL_Rect grid[NBX][NBY], char lines[NBX][NBY]){
+void putInMaze(queue *mazeq, SDL_Rect** grid, char lines[NBX][NBY]){
   int i; int j;
   for (i = 0; i < NBX; i++){
     for (j = 0; j < NBY; j++){

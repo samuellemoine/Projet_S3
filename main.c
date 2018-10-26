@@ -24,7 +24,7 @@ int main(int argc, char *argv[]){
 
   /* { axe.dx, axe.dy }   left,   right,    up,     down */
   dir direction     = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
-  SDL_Rect grid[NBX][NBY];   /* fixed positions of the snake */
+  SDL_Rect** grid = allocate_Rect2D(NBX, NBY);   /* fixed positions of the snake */
   int i; int j;
   for (i = 0; i < NBX; i++){
     for (j = 0; j < NBY; j++){
@@ -144,6 +144,7 @@ int main(int argc, char *argv[]){
     SDL_DestroyTexture(snakeTexture);
     SDL_DestroyTexture(foodTexture);
     SDL_DestroyWindow(window);
+    free_Rect2D(grid, NBY);
 
     TTF_CloseFont(font);
 
