@@ -83,5 +83,11 @@ bool foodContact(SDL_Rect *, SDL_Rect *);
 void move(snake *, SDL_Rect **, queue *, queue *, SDL_Rect *, bool *, bool *, int *);
 
 /* function and method profiles for file.c */
-void readMazeFile(char*, char [NBX][NBY]);
-void putInMaze(queue *, SDL_Rect **, char [NBX][NBY]);
+void readMazeFile(char*, char**);
+void putInMaze(queue *, SDL_Rect **, char**);
+
+/* function and method profiles for tab.c */
+SDL_Rect** allocate_Rect2D(int n, int m);
+void free_Rect2D(SDL_Rect** tab, int n);
+char** allocate_Char2D(int n, int m);
+void free_Char2D(char** tab, int n);

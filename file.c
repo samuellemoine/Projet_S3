@@ -1,6 +1,6 @@
 #include "headers.h"
 
-void readMazeFile(char* str, char lines[NBX][NBY]){
+void readMazeFile(char* str, char** lines){
   FILE* maze;
   maze = fopen(str, "r");
   int c;
@@ -17,7 +17,7 @@ void readMazeFile(char* str, char lines[NBX][NBY]){
   }
 }
 
-void putInMaze(queue *mazeq, SDL_Rect** grid, char lines[NBX][NBY]){
+void putInMaze(queue *mazeq, SDL_Rect** grid, char** lines){
   int i; int j;
   for (i = 0; i < NBX; i++){
     for (j = 0; j < NBY; j++){

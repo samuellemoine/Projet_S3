@@ -1,19 +1,5 @@
 #include "headers.h"
 
-SDL_Rect** allocate_Rect2D(int n, int m){
-  SDL_Rect** tab = malloc(n * sizeof(SDL_Rect*));
-  for (int i = 0; i < m; i++){
-    tab[i] = malloc(m * sizeof(SDL_Rect));
-  }
-  return tab;
-}
-
-void free_Rect2D(SDL_Rect** tab, int n){
-  for (int j = 0; j < n; j++){
-    free(tab[j]);
-  }
-}
-
 void timeout(int milliseconds){
     int milliseconds_since = clock() * 1000 / CLOCKS_PER_SEC;
     int end = milliseconds_since + milliseconds;
@@ -62,7 +48,7 @@ void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *scr
   SDL_RenderCopy(screen, levelTexture, NULL, &levelRect);
   SDL_RenderCopy(screen, mazeTexture, NULL, &mazeRect);
   SDL_RenderPresent(screen);
-  char lines[NBX][NBY];
+  char** lines = allocate_Char2D(NBX, NBY);
   if(event->type == SDL_KEYDOWN){
     switch (event->key.keysym.sym){
       case SDLK_LEFT:
@@ -112,6 +98,7 @@ void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *scr
         break;
     }
   }
+  free_Char2D(lines, NBY);
   SDL_DestroyTexture(levelTexture);
   SDL_DestroyTexture(mazeTexture);
 }
