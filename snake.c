@@ -18,11 +18,12 @@ void setDir(axe *currentDir, axe *dir){
   currentDir->dy = dir->dy;
 }
 
-void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, snake *head, queue *body, queue *mazeq, SDL_Rect *food, SDL_Rect** grid){
+void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, int *score, snake *head, queue *body, queue *mazeq, SDL_Rect *food, SDL_Rect** grid){
     *started = false;
     *pause = true;
     *gameover = false;
     *dirChanged = false;
+    *score = 0;
     axe ini = {0, 0};
     while (queueSize(body) > 0){
       queueOut(body);
@@ -150,8 +151,8 @@ bool foodContact(SDL_Rect *head, SDL_Rect *food){
 }
 
 
-void move(snake *head, SDL_Rect ** grid, queue *body, queue *mazeq, SDL_Rect *food, bool *gameover, bool *dirChanged, int *level){
-  timeout(ADJUST_LEVEL - *level);
+void move(snake *head, SDL_Rect ** grid, queue *body, queue *mazeq, SDL_Rect *food, bool *gameover, bool *dirChanged, int level, int *score){
+  timeout(ADJUST_LEVEL - level);
 
   bool headMoved, eats, isInLimits;
   int tmpPosX, tmpPosY;
@@ -199,6 +200,7 @@ void move(snake *head, SDL_Rect ** grid, queue *body, queue *mazeq, SDL_Rect *fo
     *dirChanged = false;
     if (eats){
       queueIn(body, &grid[xx][yy]);
+      *score += level + 1;
       *food = randFood(body, mazeq);
     }
     else{

@@ -66,7 +66,7 @@ SDL_Rect randFood(queue *, queue *);
 bool validRand(queue *, queue *, int, int);
 bool snakeContact(queue *);
 bool mazeContact(snake *, queue *);
-void drawSnake(queue *, queue *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Texture *, SDL_Rect *, int, TTF_Font*, SDL_Rect**);
+void drawSnake(queue *, queue *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Texture *, SDL_Rect *, int, int, int, TTF_Font*, SDL_Rect**);
 
 
 /* function and method profiles for snake.c */
@@ -75,16 +75,18 @@ void free_Rect2D(SDL_Rect**, int);
 void timeout(int);
 void setRect(SDL_Rect *, int, int, int, int);
 void setDir(axe *, axe *);
-void reset(bool *, bool *, bool *, bool *, snake *, queue *, queue *, SDL_Rect *, SDL_Rect **);
+void reset(bool *, bool *, bool *, bool *, int *, snake *, queue *, queue *, SDL_Rect *, SDL_Rect **);
 void handleMenu(queue *, bool *, SDL_Event *, SDL_Renderer *, SDL_Surface *[], SDL_Surface *[], int *, int *, SDL_Rect **);
 void handleKeys(const Uint8 *, snake *, dir *, bool *, bool *);
 int indice(int, int);
 bool foodContact(SDL_Rect *, SDL_Rect *);
-void move(snake *, SDL_Rect **, queue *, queue *, SDL_Rect *, bool *, bool *, int *);
+void move(snake *, SDL_Rect **, queue *, queue *, SDL_Rect *, bool *, bool *, int, int *);
 
 /* function and method profiles for file.c */
 void readMazeFile(char*, char**);
-void putInMaze(queue *, SDL_Rect **, char**);
+void putInMaze(queue *, SDL_Rect **, char **);
+void readScoreFile(char * str, char **);
+void writeScoreFile(char*, char **, int, int);
 
 /* function and method profiles for tab.c */
 SDL_Rect** allocate_Rect2D(int n, int m);

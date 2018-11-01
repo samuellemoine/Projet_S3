@@ -125,7 +125,7 @@ bool mazeContact(snake *head, queue *mazeq){
   return false;
 }
 
-void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL_Texture *snakeTexture, SDL_Texture *wallTexture, SDL_Texture *foodTexture, SDL_Rect *food, int level, TTF_Font *font, SDL_Rect** grid){
+void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL_Texture *snakeTexture, SDL_Texture *wallTexture, SDL_Texture *foodTexture, SDL_Rect *food, int level, int mazeSelector, int score, TTF_Font *font, SDL_Rect** grid){
     if (body == NULL){
         exit(EXIT_FAILURE);
     }
@@ -137,11 +137,27 @@ void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL
     SDL_Surface *scorebgSurface = SDL_LoadBMP("scorebg.bmp");
     SDL_Texture *scorebgTexture = SDL_CreateTextureFromSurface(screen, scorebgSurface);
     SDL_Rect scorebgRect = {0, 0, SCREEN_WIDTH, TOP_BAR};
+
     char scoreChar[12];
-    sprintf(scoreChar, "Score: %d",(level + 1) * (queueSize(body)));
+    sprintf(scoreChar, "Score: %d", score);
     SDL_Surface *scoreSurface = TTF_RenderText_Solid(font, scoreChar, (SDL_Color) {255, 98, 98});
     SDL_Texture *scoreTexture = SDL_CreateTextureFromSurface(screen, scoreSurface);
-    SDL_Rect scoreRect = {SNAKE_WIDTH / 2, SNAKE_HEIGHT / 2, 200, TOP_BAR / 3 * 2};
+    SDL_Rect scoreRect = {SNAKE_WIDTH, SNAKE_HEIGHT / 2, 200, TOP_BAR / 3 * 2};
+
+    char highScoreChar[12];
+    char** highScores = allocate_Char2D(4, 4);
+    readScoreFile("highScores.txt", highScores);
+    int highScore = atoi(highScores[mazeSelector]);
+    if (score > highScore){
+      writeScoreFile("highScores.txt", highScores, mazeSelector, score);
+    }
+
+    free_Char2D(highScores, 4);
+
+    sprintf(highScoreChar, "High: %d", highScore);
+    SDL_Surface *highScoreSurface = TTF_RenderText_Solid(font, highScoreChar, (SDL_Color) {255, 98, 98});
+    SDL_Texture *highScoreTexture = SDL_CreateTextureFromSurface(screen, highScoreSurface);
+    SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 + SNAKE_WIDTH, SNAKE_HEIGHT / 2, 200, TOP_BAR / 3 * 2};
 
     /* this if - else if block smoothens the snake's movement */
     if (head->dir.dx == 0){
@@ -180,6 +196,7 @@ void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL
     SDL_RenderCopy(screen, snakeTexture, NULL, &smoothHead);
     SDL_RenderCopy(screen, scorebgTexture, NULL, &scorebgRect);
     SDL_RenderCopy(screen, scoreTexture, NULL, &scoreRect);
+    SDL_RenderCopy(screen, highScoreTexture, NULL, &highScoreRect);
 
     /* display the snake blocks contained in the queue */
     Element *element = body->head;
@@ -193,8 +210,10 @@ void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL
       element = element->nextPos;
     }
     SDL_RenderPresent(screen);
-    SDL_FreeSurface(scoreSurface);
-    SDL_DestroyTexture(scoreTexture);
     SDL_FreeSurface(scorebgSurface);
     SDL_DestroyTexture(scorebgTexture);
+    SDL_FreeSurface(scoreSurface);
+    SDL_DestroyTexture(scoreTexture);
+    SDL_FreeSurface(highScoreSurface);
+    SDL_DestroyTexture(highScoreTexture);
 }

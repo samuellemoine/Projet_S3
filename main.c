@@ -47,14 +47,15 @@ int main(int argc, char *argv[]){
   queueIn(body, &head.snakeRect);
 
   bool playing = true;    /* controls main loop */
-
   bool started; /* controls the menu at start */
   bool pause;   /* pauses the game */
   bool gameover; /* stops the snake from moving on on collision */
   bool dirChanged;
+
+  int score;
   SDL_Event event;
   queue *mazeq = initialize();
-  reset(&started, &pause, &gameover, &dirChanged, &head, body, mazeq, &food, grid);
+  reset(&started, &pause, &gameover, &dirChanged, &score, &head, body, mazeq, &food, grid);
 
   int level = 5;
   int mazeSelector = 0;
@@ -96,9 +97,9 @@ int main(int argc, char *argv[]){
   while(playing){
     if (!gameover && started){
       handleKeys(keyboardState, &head, &direction, &pause, &dirChanged);
-      drawSnake(body, mazeq, &head, screen, snakeTexture, wallTexture, foodTexture, &food, level, font, grid);
+      drawSnake(body, mazeq, &head, screen, snakeTexture, wallTexture, foodTexture, &food, level, mazeSelector, score, font, grid);
       if (!pause){
-        move(&head, grid, body, mazeq, &food, &gameover, &dirChanged, &level);
+        move(&head, grid, body, mazeq, &food, &gameover, &dirChanged, level, &score);
       }
     }
 
@@ -107,7 +108,7 @@ int main(int argc, char *argv[]){
       /* reset to initial variables when game is over */
       if (gameover){
         if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_RETURN){
-          reset(&started, &pause, &gameover, &dirChanged, &head, body, mazeq, &food, grid);
+          reset(&started, &pause, &gameover, &dirChanged, &score, &head, body, mazeq, &food, grid);
         }
       }
       /* menu selector */
