@@ -114,6 +114,8 @@ int main(int argc, char *argv[]){
       /* menu selector */
       if (!started){
         handleMenu(mazeq, &started, &event, screen, levelSurfaces, mazeSurfaces, &level, &mazeSelector, grid);
+        /* food position needs to be called after the maze map has been loaded */
+        food = randFood(body, mazeq);
       }
       /* quit the game */
       if (event.type == SDL_QUIT || keyboardState[SDL_SCANCODE_ESCAPE]){
