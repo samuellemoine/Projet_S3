@@ -15,6 +15,7 @@ void readMazeFile(char* str, char** lines){
       col = 0;
     }
   }
+  fclose(maze);
 }
 
 void putInMaze(queue *mazeq, SDL_Rect** grid, char** lines){
