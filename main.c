@@ -12,7 +12,8 @@ int main(int argc, char *argv[]){
            SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, TOP_BAR + SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
            /* create the renderer */
   SDL_Renderer *screen  = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-  TTF_Font *font = TTF_OpenFont("old_school_united_regular.ttf", TOP_BAR);
+  SDL_SetRenderDrawColor(screen, 255, 255, 255, 255);
+  TTF_Font *font = TTF_OpenFont("font.ttf", TOP_BAR + 5);
   if (!font){
     printf("Error while opening font: %s\n", TTF_GetError());
   }

@@ -134,13 +134,10 @@ void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL
     int j = 0;
     SDL_Rect smoothHead = {0, 0, SNAKE_WIDTH, SNAKE_HEIGHT};
 
-    SDL_Surface *scorebgSurface = SDL_LoadBMP("scorebg.bmp");
-    SDL_Texture *scorebgTexture = SDL_CreateTextureFromSurface(screen, scorebgSurface);
-    SDL_Rect scorebgRect = {0, 0, SCREEN_WIDTH, TOP_BAR};
 
     char scoreChar[12];
     sprintf(scoreChar, "Score: %d", score);
-    SDL_Surface *scoreSurface = TTF_RenderText_Solid(font, scoreChar, (SDL_Color) {255, 98, 98});
+    SDL_Surface *scoreSurface = TTF_RenderText_Solid(font, scoreChar, (SDL_Color) {0, 0, 0});
     SDL_Texture *scoreTexture = SDL_CreateTextureFromSurface(screen, scoreSurface);
     SDL_Rect scoreRect = {SNAKE_WIDTH, SNAKE_HEIGHT / 2, 200, TOP_BAR / 3 * 2};
 
@@ -155,7 +152,7 @@ void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL
     free_Char2D(highScores, 4);
 
     sprintf(highScoreChar, "High: %d", highScore);
-    SDL_Surface *highScoreSurface = TTF_RenderText_Solid(font, highScoreChar, (SDL_Color) {255, 98, 98});
+    SDL_Surface *highScoreSurface = TTF_RenderText_Solid(font, highScoreChar, (SDL_Color) {0, 0, 0});
     SDL_Texture *highScoreTexture = SDL_CreateTextureFromSurface(screen, highScoreSurface);
     SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 + SNAKE_WIDTH, SNAKE_HEIGHT / 2, 200, TOP_BAR / 3 * 2};
 
@@ -194,7 +191,6 @@ void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL
     SDL_RenderClear(screen);
     SDL_RenderCopy(screen, foodTexture, NULL, food);
     SDL_RenderCopy(screen, snakeTexture, NULL, &smoothHead);
-    SDL_RenderCopy(screen, scorebgTexture, NULL, &scorebgRect);
     SDL_RenderCopy(screen, scoreTexture, NULL, &scoreRect);
     SDL_RenderCopy(screen, highScoreTexture, NULL, &highScoreRect);
 
@@ -210,8 +206,6 @@ void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL
       element = element->nextPos;
     }
     SDL_RenderPresent(screen);
-    SDL_FreeSurface(scorebgSurface);
-    SDL_DestroyTexture(scorebgTexture);
     SDL_FreeSurface(scoreSurface);
     SDL_DestroyTexture(scoreTexture);
     SDL_FreeSurface(highScoreSurface);
