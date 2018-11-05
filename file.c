@@ -49,7 +49,8 @@ void readScoreFile(char* str, char** highScore){
 void writeScoreFile(char* str, char** currentHigh, int line, int newHighScore){
   FILE* sc;
   sc = fopen(str, "w");
-  for (int i = 0; i < 4; i++){
+  int i;
+  for (i = 0; i < 4; i++){
     if (i != line){
       fprintf(sc,"%s\n", currentHigh[i]);
     }
