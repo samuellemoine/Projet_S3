@@ -15,7 +15,7 @@
 #define TOP_BAR           SNAKE_WIDTH * 3
 #define FOOD_WIDTH        8
 #define FOOD_HEIGHT       8
-#define VELOCITY          1
+#define VELOCITY          3
 #define ADJUST_LEVEL      10
 #define NBX               SCREEN_WIDTH / SNAKE_WIDTH
 #define NBY               SCREEN_HEIGHT / SNAKE_HEIGHT
