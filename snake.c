@@ -39,50 +39,77 @@ void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, int *sc
 
 }
 
-void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *screen, SDL_Surface *levelSurface[], SDL_Surface *mazeSurface[], int *level, int *mazeSelector, SDL_Rect** grid){
+void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *screen, SDL_Surface *levelSurface[], SDL_Surface *mazeSurface[], bool *firstChoice, int *level, int *mazeSelector, SDL_Rect** grid){
   /* level selector position */
-  SDL_Rect levelRect = { (SCREEN_WIDTH - 400) / 2, (SCREEN_HEIGHT - 40) / 4, 400, 40 };
-  SDL_Texture *levelTexture = SDL_CreateTextureFromSurface(screen, levelSurface[*level]);
-  SDL_Rect mazeRect = { (SCREEN_WIDTH - 160) / 2, SCREEN_HEIGHT / 3, 160, 320 };
-  SDL_Texture *mazeTexture = SDL_CreateTextureFromSurface(screen, mazeSurface[*mazeSelector]);
+  SDL_Rect mazeRect;
+  SDL_Texture *mazeTexture;
+  SDL_Rect levelRect;
+  SDL_Texture *levelTexture;
+  if (*firstChoice){
+    mazeRect = (SDL_Rect) {80, 118, 160, 340};
+    mazeTexture = SDL_CreateTextureFromSurface(screen, mazeSurface[*mazeSelector * 2]);
+    levelRect = (SDL_Rect) {260, 118, 160, 340 };
+    levelTexture = SDL_CreateTextureFromSurface(screen, levelSurface[*level * 2 + 1]);
+  }
+  else{
+    mazeRect = (SDL_Rect) {80, 118, 160, 340};
+    mazeTexture = SDL_CreateTextureFromSurface(screen, mazeSurface[*mazeSelector * 2 + 1]);
+    levelRect = (SDL_Rect) {260, 118, 160, 340};
+    levelTexture = SDL_CreateTextureFromSurface(screen, levelSurface[*level * 2]);
+  }
+
+
   SDL_RenderClear(screen);
   SDL_RenderCopy(screen, levelTexture, NULL, &levelRect);
   SDL_RenderCopy(screen, mazeTexture, NULL, &mazeRect);
   SDL_RenderPresent(screen);
   char** lines = allocate_Char2D(NBX, NBY);
+  SDL_Rect r;
+  int i;
   if(event->type == SDL_KEYDOWN){
     switch (event->key.keysym.sym){
       case SDLK_LEFT:
+        *firstChoice = !*firstChoice;
+      break;
+      case SDLK_RIGHT:
+        *firstChoice = !*firstChoice;
+      break;
+      case SDLK_UP:
+      if (*firstChoice){
+        if (*mazeSelector > 0){
+          *mazeSelector -= 1;
+        }
+        else{
+          *mazeSelector = 3;
+        }
+      }
+      else{
         if (*level > 0){
           *level -= 1;
         }
         else{
-          *level = 9;
+          *level = 4;
         }
+      }
       break;
-      case SDLK_RIGHT:
-        if (*level < 9){
+      case SDLK_DOWN:
+      if (*firstChoice){
+        if (*mazeSelector < 3){
+          *mazeSelector += 1;
+        }
+        else{
+          *mazeSelector = 0;
+        }
+      }
+      else{
+        if (*level < 4){
           *level += 1;
         }
         else{
           *level = 0;
         }
-      break;
-      case SDLK_UP:
-      if (*mazeSelector > 0){
-        *mazeSelector -= 1;
       }
-      else{
-        *mazeSelector = 3;
-      }
-      break;
-      case SDLK_DOWN:
-      if (*mazeSelector < 3){
-        *mazeSelector += 1;
-      }
-      else{
-        *mazeSelector = 0;
-      }
+
       break;
       case SDLK_RETURN:
         *started = true;
@@ -92,10 +119,13 @@ void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *scr
             putInMaze(mazeq, grid, lines);
           break;
 	        case 2:
-            readMazeFile("maze2.txt", lines);
-	          putInMaze(mazeq, grid, lines);
+            randMaze(15 + rand()%15, mazeq, grid);
 	        break;
+          case 3:
+            randMaze(33 + rand()%17, mazeq, grid);
+          break;
         }
+
         break;
     }
   }
@@ -109,9 +139,9 @@ void handleKeys(const Uint8 *keyboardState, snake *head, dir *direction, bool *p
   if (arrowPressed  && *pause){
         *pause = false;
   }
-  if (keyboardState[SDL_SCANCODE_P]){
+  if (keyboardState[SDL_SCANCODE_SPACE]){
     *pause = !(*pause);
-    timeout(300);
+    timeout(100);
   }
 
   if (keyboardState[SDL_SCANCODE_LEFT] && head->dir.dx != 1 && !*dirChanged){
@@ -189,7 +219,6 @@ void move(snake *head, SDL_Rect ** grid, queue *body, queue *mazeq, SDL_Rect *fo
   /* determine position in the grid */
   xx = indice(head->snakeRect.x, SNAKE_WIDTH);
   yy = indice(head->snakeRect.y - TOP_BAR, SNAKE_HEIGHT);
-
 
   /* setting the three necessary booleans to move the snake */
   eats = foodContact(&head->snakeRect, food);
