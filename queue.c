@@ -80,10 +80,12 @@ SDL_Rect randFood(queue *body, queue *mazeq){
 }
 
 bool validRand(queue *body, queue *mazeq, int x, int y){
-  int cpt = 0;int i, j;
+  if ( x < 0 || y < 0 || x >= NBX || y >= NBY ) return false;
+  int cpt = 0;
+  int i, j;
   Element *element = body->head;
   while (element != NULL){
-    if (element->pos.x / SNAKE_WIDTH == x && (element->pos.y - TOP_BAR) / SNAKE_HEIGHT == y){
+    if (element->pos.x  == x * SNAKE_WIDTH && (element->pos.y - TOP_BAR) == y * SNAKE_HEIGHT){
       return false;
     }
     element = element->nextPos;
@@ -93,12 +95,12 @@ bool validRand(queue *body, queue *mazeq, int x, int y){
     /* verify that it is possible to eat the food */
     for (i = -1; i <= 1; i++){
       for (j = -1; j <= 1; j++){
-        if ((x == element->pos.x / SNAKE_WIDTH + i && y == (element->pos.y - TOP_BAR)/ SNAKE_HEIGHT + j) && fabs((double)i) != fabs((double)j)){
+        if ((x * SNAKE_WIDTH  == element->pos.x + i *  SNAKE_WIDTH  && y * SNAKE_WIDTH  == (element->pos.y - TOP_BAR) + j * SNAKE_WIDTH ) && fabs((double)i) != fabs((double)j)){
           cpt++;
         }
       }
     }
-    if ( (element->pos.x / SNAKE_WIDTH == x && (element->pos.y - TOP_BAR) / SNAKE_HEIGHT == y) || cpt == 3){
+    if ( (element->pos.x == x * SNAKE_WIDTH && (element->pos.y - TOP_BAR) == y * SNAKE_WIDTH) || cpt == 3){
       return false;
     }
     element = element->nextPos;
@@ -164,7 +166,7 @@ bool mazeContact(snake *head, queue *mazeq){
   return false;
 }
 
-void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL_Texture *snakeTexture, SDL_Texture *wallTexture, SDL_Texture *foodTexture, SDL_Texture *topbarTexture, SDL_Rect *food, int level, int mazeSelector, int score, TTF_Font *font, SDL_Rect** grid){
+void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL_Texture *gameTexture, SDL_Texture *topbarTexture, SDL_Rect *food, int mazeSelector, int score, TTF_Font *font, SDL_Rect** grid){
     if (body == NULL){
         exit(EXIT_FAILURE);
     }
@@ -182,16 +184,15 @@ void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL
     }
     free_Char2D(highScores, 4);
     sprintf(highScoreChar, "High: %d", highScore);
-
-    SDL_Surface *scoreSurface = TTF_RenderText_Solid(font, scoreChar, (SDL_Color) {22, 22, 22});
+    SDL_Color fontColor = (SDL_Color) {22, 22, 22, 255};
+    SDL_Surface *scoreSurface = TTF_RenderText_Solid(font, scoreChar, fontColor);
     SDL_Texture *scoreTexture = SDL_CreateTextureFromSurface(screen, scoreSurface);
-    SDL_Surface *highScoreSurface = TTF_RenderText_Solid(font, highScoreChar, (SDL_Color) {22, 22, 22});
+    SDL_Surface *highScoreSurface = TTF_RenderText_Solid(font, highScoreChar, fontColor);
     SDL_Texture *highScoreTexture = SDL_CreateTextureFromSurface(screen, highScoreSurface);
 
 
-    SDL_Rect scoreRect = {SNAKE_WIDTH, SNAKE_HEIGHT / 2, 200, TOP_BAR / 3 * 2};
-
-    SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 + SNAKE_WIDTH, SNAKE_HEIGHT / 2, 200, TOP_BAR / 3 * 2};
+    SDL_Rect scoreRect = {SNAKE_WIDTH, SNAKE_HEIGHT / 2, 200, SNAKE_WIDTH * 2};
+    SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 + SNAKE_WIDTH, SNAKE_HEIGHT / 2, 200, SNAKE_WIDTH * 2};
 
     /* this if - else if block smoothens the snake's movement */
     int i = 0;
@@ -212,27 +213,27 @@ void drawSnake(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL
       setRect(&smoothHead, head->snakeRect.x + i, grid[0][j].y, SNAKE_WIDTH, SNAKE_HEIGHT);
     }
 
-
-
-
+    SDL_Rect topbarRect = (SDL_Rect) { 0, 0, SCREEN_WIDTH, TOP_BAR };
+    SDL_Rect snakeRect = (SDL_Rect) { 1280, 340, 30, 30 };
+    SDL_Rect foodRect = (SDL_Rect) { 1340, 340, 30, 30 };
+    SDL_Rect wallRect = (SDL_Rect) { 1310, 340, 30, 30 };
     SDL_RenderClear(screen);
-    SDL_RenderCopy(screen, foodTexture, NULL, food);
-    SDL_RenderCopy(screen, snakeTexture, NULL, &smoothHead); /* display the aligned head to smoothen the front movement*/
-    SDL_Rect r; r.w = SCREEN_WIDTH; r.h = TOP_BAR;
-    SDL_RenderCopy(screen, topbarTexture, NULL, &r);
+    SDL_RenderCopy(screen, gameTexture, &foodRect, food);
+    SDL_RenderCopy(screen, gameTexture, &snakeRect, &smoothHead); /* display the aligned head to smoothen the front movement*/
+    SDL_RenderCopy(screen, topbarTexture, &topbarRect, &topbarRect);
     SDL_RenderCopy(screen, scoreTexture, NULL, &scoreRect);
     SDL_RenderCopy(screen, highScoreTexture, NULL, &highScoreRect);
 
     /* display the snake blocks */
     Element *element = body->head;
     while (element != NULL){
-      SDL_RenderCopy(screen, snakeTexture, NULL, &element->pos);
+      SDL_RenderCopy(screen, gameTexture, &snakeRect, &element->pos);
       element = element->nextPos;
     }
     /* display the maze blocks */
     element = mazeq->head;
     while (element != NULL){
-      SDL_RenderCopy(screen, wallTexture, NULL, &element->pos);
+      SDL_RenderCopy(screen, gameTexture, &wallRect, &element->pos);
       element = element->nextPos;
     }
     SDL_RenderPresent(screen);

@@ -39,81 +39,40 @@ void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, int *sc
 
 }
 
-void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *screen, SDL_Surface *levelSurface[], SDL_Surface *mazeSurface[], bool *firstChoice, int *level, int *mazeSelector, SDL_Rect** grid){
-  /* level selector position */
-  SDL_Rect mazeRect;
-  SDL_Texture *mazeTexture;
-  SDL_Rect levelRect;
-  SDL_Texture *levelTexture;
-  if (*firstChoice){
-    mazeRect = (SDL_Rect) {80, 118, 160, 340};
-    mazeTexture = SDL_CreateTextureFromSurface(screen, mazeSurface[*mazeSelector * 2]);
-    levelRect = (SDL_Rect) {260, 118, 160, 340 };
-    levelTexture = SDL_CreateTextureFromSurface(screen, levelSurface[*level * 2 + 1]);
-  }
-  else{
-    mazeRect = (SDL_Rect) {80, 118, 160, 340};
-    mazeTexture = SDL_CreateTextureFromSurface(screen, mazeSurface[*mazeSelector * 2 + 1]);
-    levelRect = (SDL_Rect) {260, 118, 160, 340};
-    levelTexture = SDL_CreateTextureFromSurface(screen, levelSurface[*level * 2]);
-  }
+void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *screen, SDL_Texture *menuTexture, int *choice, int *level, int *maze, SDL_Rect** grid){
 
-
-  SDL_RenderClear(screen);
-  SDL_RenderCopy(screen, levelTexture, NULL, &levelRect);
-  SDL_RenderCopy(screen, mazeTexture, NULL, &mazeRect);
-  SDL_RenderPresent(screen);
   char** lines = allocate_Char2D(NBX, NBY);
-  SDL_Rect r;
-  int i;
   if(event->type == SDL_KEYDOWN){
     switch (event->key.keysym.sym){
       case SDLK_LEFT:
-        *firstChoice = !*firstChoice;
+        *choice = !*choice;
       break;
       case SDLK_RIGHT:
-        *firstChoice = !*firstChoice;
+        *choice = !*choice;
       break;
       case SDLK_UP:
-      if (*firstChoice){
-        if (*mazeSelector > 0){
-          *mazeSelector -= 1;
-        }
-        else{
-          *mazeSelector = 3;
-        }
+      if (*choice){
+        if (*maze > 0)  *maze -= 1;
+        else  *maze = 3;
       }
       else{
-        if (*level > 0){
-          *level -= 1;
-        }
-        else{
-          *level = 4;
-        }
+        if (*level > 0)  *level -= 1;
+        else  *level = 4;
       }
       break;
       case SDLK_DOWN:
-      if (*firstChoice){
-        if (*mazeSelector < 3){
-          *mazeSelector += 1;
-        }
-        else{
-          *mazeSelector = 0;
-        }
+      if (*choice){
+        if (*maze < 3)  *maze += 1;
+        else  *maze = 0;
       }
       else{
-        if (*level < 4){
-          *level += 1;
-        }
-        else{
-          *level = 0;
-        }
+        if (*level < 4)  *level += 1;
+        else  *level = 0;
       }
-
       break;
       case SDLK_RETURN:
         *started = true;
-        switch (*mazeSelector){
+        switch (*maze){
           case 1:
             readMazeFile("maze1.txt", lines);
             putInMaze(mazeq, grid, lines);
@@ -125,20 +84,32 @@ void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *scr
             randMaze(33 + rand()%17, mazeq, grid);
           break;
         }
-
         break;
     }
   }
   free_Char2D(lines, NBY);
-  SDL_DestroyTexture(levelTexture);
-  SDL_DestroyTexture(mazeTexture);
+
+  SDL_Rect leftRect = (SDL_Rect) { 4 * SCREEN_WIDTH / 25, 6 * SCREEN_HEIGHT / 25, 8 * SCREEN_WIDTH / 25, 17 * SCREEN_HEIGHT / 25 };
+  SDL_Rect rightRect = (SDL_Rect) { 13 * SCREEN_WIDTH / 25, 6 * SCREEN_WIDTH / 25, 8 * SCREEN_WIDTH / 25, 17 * SCREEN_WIDTH / 25 };
+  SDL_Rect mazeSprite = (SDL_Rect) { (*maze * 2 + !*choice) * 160, 340, 160, 340 };
+  SDL_Rect levelSprite = (SDL_Rect) { (*level * 2 + *choice) * 160, 0, 160, 340 };
+
+  SDL_RenderClear(screen);
+  SDL_RenderCopy(screen, menuTexture, &mazeSprite, &leftRect);
+  SDL_RenderCopy(screen, menuTexture, &levelSprite, &rightRect);
+  SDL_RenderPresent(screen);
+
 }
 
-void handleKeys(const Uint8 *keyboardState, snake *head, dir *direction, bool *pause, bool *dirChanged){
+void handleKeys(SDL_Event *event, const Uint8 *keyboardState, snake *head, dir *direction, bool *pause, bool *dirChanged){
   bool arrowPressed = keyboardState[SDL_SCANCODE_LEFT] || keyboardState[SDL_SCANCODE_RIGHT] || keyboardState[SDL_SCANCODE_UP] || keyboardState[SDL_SCANCODE_DOWN];
+  if (event){
+    printf("");
+  }
   if (arrowPressed  && *pause){
         *pause = false;
   }
+
   if (keyboardState[SDL_SCANCODE_SPACE]){
     *pause = !(*pause);
     timeout(100);

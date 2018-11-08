@@ -1,6 +1,29 @@
 #include "headers.h"
 
-int main(int argc, char *argv[]){
+
+void loadSurfacesBMP(SDL_Surface* levelSurfaces[], SDL_Surface* mazeSurfaces[]){
+  /* load all images needed for the game */
+  int i = 0;
+  char* path;
+  for (i = 0; i < 8; i++){
+    path = NULL;
+    sprintf(path, "sprites/menu/maze%d.bmp", i+1);
+    mazeSurfaces[i] = SDL_LoadBMP(path);
+    if (mazeSurfaces[i] == NULL){
+      printf("Could not load %s : %s", path, SDL_GetError());
+    }
+  }
+  for (i = 0; i < 10; i++){
+    path = NULL;
+    sprintf(path, "sprites/menu/maze%d.bmp", i+1);
+    levelSurfaces[i] = SDL_LoadBMP(path);
+    if (levelSurfaces[i] == NULL){
+      printf("Could not load %s : %s", path, SDL_GetError());
+    }
+  }
+}
+
+int main(void){
 
   if (SDL_Init(SDL_INIT_VIDEO) != 0 || TTF_Init() != 0){
     printf("SDL Initialisation failed ! : %s", SDL_GetError());
@@ -18,7 +41,7 @@ int main(int argc, char *argv[]){
 
   SDL_SetRenderDrawColor(screen, 54, 54, 54, 255);  /* background color */
 
-  TTF_Font *font = TTF_OpenFont("font.ttf", TOP_BAR + 5);
+  TTF_Font *font = TTF_OpenFont("font.ttf", 17);
   if (!font){
     printf("Error while opening font: %s\n", TTF_GetError());
   }
@@ -46,7 +69,7 @@ int main(int argc, char *argv[]){
   queueIn(body, &head.snakeRect);
   queue *mazeq = initialize();  /* queue of SDL_Rect contains grid coordinates for the maze */
 
-  bool firstChoice = true;  /* switch between maze and speed selection in menu */
+  int choice = 1;  /* switch between maze and speed selection in menu */
   bool playing = true;      /* controls main loop */
   bool started;             /* controls the menu at start */
   bool pause;               /* pauses the game */
@@ -59,50 +82,20 @@ int main(int argc, char *argv[]){
   reset(&started, &pause, &gameover, &dirChanged, &score, &head, body, mazeq, &food, grid); /* set the initial variables */
 
 
-  /* load all images needed for the game */
-  SDL_Surface *snakeSurface = SDL_LoadBMP("sprites/game/rect.bmp");
-  SDL_Surface *wallSurface = SDL_LoadBMP("sprites/game/wall.bmp");
-  SDL_Surface *foodSurface = SDL_LoadBMP("sprites/game/food.bmp");
-  SDL_Surface *topbarSurface = SDL_LoadBMP("sprites/game/topbar.bmp");
+  SDL_Surface *topbarSurface = SDL_LoadBMP("sprites/topbar.bmp");
 
-  SDL_Surface *levelSurface1 = SDL_LoadBMP("sprites/menu/level1.bmp");
-  SDL_Surface *levelSurface2 = SDL_LoadBMP("sprites/menu/level2.bmp");
-  SDL_Surface *levelSurface3 = SDL_LoadBMP("sprites/menu/level3.bmp");
-  SDL_Surface *levelSurface4 = SDL_LoadBMP("sprites/menu/level4.bmp");
-  SDL_Surface *levelSurface5 = SDL_LoadBMP("sprites/menu/level5.bmp");
-  SDL_Surface *levelSurface1f = SDL_LoadBMP("sprites/menu/level1faded.bmp");
-  SDL_Surface *levelSurface2f = SDL_LoadBMP("sprites/menu/level2faded.bmp");
-  SDL_Surface *levelSurface3f = SDL_LoadBMP("sprites/menu/level3faded.bmp");
-  SDL_Surface *levelSurface4f = SDL_LoadBMP("sprites/menu/level4faded.bmp");
-  SDL_Surface *levelSurface5f = SDL_LoadBMP("sprites/menu/level5faded.bmp");
+  SDL_Surface *gameSurface = SDL_LoadBMP("sprites.bmp");
 
-
-  SDL_Surface *mazeSurface1 = SDL_LoadBMP("sprites/menu/maze1.bmp");
-  SDL_Surface *mazeSurface2 = SDL_LoadBMP("sprites/menu/maze2.bmp");
-  SDL_Surface *mazeSurface3 = SDL_LoadBMP("sprites/menu/maze3.bmp");
-  SDL_Surface *mazeSurface4 = SDL_LoadBMP("sprites/menu/maze4.bmp");
-
-  SDL_Surface *mazeSurface1f = SDL_LoadBMP("sprites/menu/maze1faded.bmp");
-  SDL_Surface *mazeSurface2f = SDL_LoadBMP("sprites/menu/maze2faded.bmp");
-  SDL_Surface *mazeSurface3f = SDL_LoadBMP("sprites/menu/maze3faded.bmp");
-  SDL_Surface *mazeSurface4f = SDL_LoadBMP("sprites/menu/maze4faded.bmp");
-
-  /* arrays containing image surfaces of the level and maze selctor */
-  SDL_Surface *levelSurfaces[10] = {levelSurface1, levelSurface1f, levelSurface2, levelSurface2f, levelSurface3, levelSurface3f, levelSurface4, levelSurface4f, levelSurface5, levelSurface5f};
-  SDL_Surface *mazeSurfaces[8] = {mazeSurface1, mazeSurface1f, mazeSurface2, mazeSurface2f, mazeSurface3, mazeSurface3f, mazeSurface4, mazeSurface4f};
-
-  SDL_Texture *snakeTexture = SDL_CreateTextureFromSurface(screen, snakeSurface);
-  SDL_Texture *wallTexture = SDL_CreateTextureFromSurface(screen, wallSurface);
-  SDL_Texture *foodTexture = SDL_CreateTextureFromSurface(screen, foodSurface);
   SDL_Texture *topbarTexture = SDL_CreateTextureFromSurface(screen, topbarSurface);
+  SDL_Texture *gameTexture = SDL_CreateTextureFromSurface(screen, gameSurface);
 
-  SDL_SetWindowIcon(window, snakeSurface);
+  SDL_SetWindowIcon(window, gameSurface);
 
   /* main loop */
   while(playing){
     if (!gameover && started){
-      handleKeys(keyboardState, &head, &direction, &pause, &dirChanged);
-      drawSnake(body, mazeq, &head, screen, snakeTexture, wallTexture, foodTexture, topbarTexture, &food, level, mazeSelector, score, font, grid);
+      handleKeys(&event, keyboardState, &head, &direction, &pause, &dirChanged);
+      drawSnake(body, mazeq, &head, screen, gameTexture, topbarTexture, &food, mazeSelector, score, font, grid);
       if (!pause){
         move(&head, grid, body, mazeq, &food, &gameover, &dirChanged, level, &score);
       }
@@ -118,7 +111,7 @@ int main(int argc, char *argv[]){
       }
       /* menu selector */
       if (!started){
-        handleMenu(mazeq, &started, &event, screen, levelSurfaces, mazeSurfaces, &firstChoice, &level, &mazeSelector, grid);
+        handleMenu(mazeq, &started, &event, screen, gameTexture, &choice, &level, &mazeSelector, grid);
         /* food position needs to be called after the maze map has been loaded */
         food = randFood(body, mazeq);
       }
@@ -132,31 +125,10 @@ int main(int argc, char *argv[]){
 
     /* clean up */
     SDL_DestroyRenderer(screen);
-    SDL_FreeSurface(snakeSurface);
-    SDL_FreeSurface(wallSurface);
-    SDL_FreeSurface(foodSurface);
-    SDL_FreeSurface(levelSurface1);
-    SDL_FreeSurface(levelSurface2);
-    SDL_FreeSurface(levelSurface3);
-    SDL_FreeSurface(levelSurface4);
-    SDL_FreeSurface(levelSurface5);
-    SDL_FreeSurface(levelSurface1f);
-    SDL_FreeSurface(levelSurface2f);
-    SDL_FreeSurface(levelSurface3f);
-    SDL_FreeSurface(levelSurface4f);
-    SDL_FreeSurface(levelSurface5f);
-    SDL_FreeSurface(mazeSurface1);
-    SDL_FreeSurface(mazeSurface2);
-    SDL_FreeSurface(mazeSurface3);
-    SDL_FreeSurface(mazeSurface4);
-    SDL_FreeSurface(mazeSurface1f);
-    SDL_FreeSurface(mazeSurface2f);
-    SDL_FreeSurface(mazeSurface3f);
-    SDL_FreeSurface(mazeSurface4f);
+    SDL_FreeSurface(gameSurface);
     SDL_FreeSurface(topbarSurface);
     SDL_DestroyTexture(topbarTexture);
-    SDL_DestroyTexture(snakeTexture);
-    SDL_DestroyTexture(foodTexture);
+    SDL_DestroyTexture(gameTexture);
     SDL_DestroyWindow(window);
     free_Rect2D(grid, NBX);
     TTF_CloseFont(font);

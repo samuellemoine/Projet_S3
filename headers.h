@@ -7,17 +7,17 @@
 #include <string.h>
 #include <time.h>
 
-
+#define NBX               20
+#define NBY               NBX
 #define SCREEN_WIDTH      500
-#define SCREEN_HEIGHT     500
-#define SNAKE_WIDTH       25
-#define SNAKE_HEIGHT      25
+#define SCREEN_HEIGHT     SCREEN_WIDTH
+#define SNAKE_WIDTH       SCREEN_WIDTH / NBX
+#define SNAKE_HEIGHT      SCREEN_HEIGHT / NBY
 #define TOP_BAR           SNAKE_WIDTH * 3
 
 #define VELOCITY          1
 #define ADJUST_LEVEL      5
-#define NBX               SCREEN_WIDTH / SNAKE_WIDTH
-#define NBY               SCREEN_HEIGHT / SNAKE_HEIGHT
+
 
 typedef struct Element Element;
 struct Element {
@@ -72,7 +72,7 @@ void randMaze(int, queue *, SDL_Rect**);
 bool validMaze(int, int);
 bool snakeContact(queue *);
 bool mazeContact(snake *, queue *);
-void drawSnake(queue *, queue *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Texture *, SDL_Texture *, SDL_Rect *, int, int, int, TTF_Font*, SDL_Rect**);
+void drawSnake(queue *, queue *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Rect *, int, int, TTF_Font*, SDL_Rect**);
 
 
 /* function and method profiles for snake.c */
@@ -82,8 +82,8 @@ void timeout(int);
 void setRect(SDL_Rect *, int, int, int, int);
 void setDir(axe *, axe *);
 void reset(bool *, bool *, bool *, bool *, int *, snake *, queue *, queue *, SDL_Rect *, SDL_Rect **);
-void handleMenu(queue *, bool *, SDL_Event *, SDL_Renderer *, SDL_Surface *[], SDL_Surface *[], bool *, int *, int *, SDL_Rect **);
-void handleKeys(const Uint8 *, snake *, dir *, bool *, bool *);
+void handleMenu(queue *, bool *, SDL_Event *, SDL_Renderer *, SDL_Texture *, int *, int *, int *, SDL_Rect **);
+void handleKeys(SDL_Event *, const Uint8 *, snake *, dir *, bool *, bool *);
 int indice(int, int);
 bool foodContact(SDL_Rect *, SDL_Rect *);
 void move(snake *, SDL_Rect **, queue *, queue *, SDL_Rect *, bool *, bool *, int, int *);
