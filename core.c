@@ -200,7 +200,7 @@ void drawScreen(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SD
     sprintf(scoreChar, "Score: %d", score);
 
     char highScoreChar[12];
-    char** highScores = allocate_Char2D(16, 16);
+    char** highScores = allocate_Char2D(4, 4);
     readScoreFile("highScores.txt", highScores);
     int highScore = atoi(highScores[mazeSelector]);
     if (score > highScore){
