@@ -16,11 +16,11 @@ void free_Rect2D(SDL_Rect** tab, int n){
   }
 }
 
-char** allocate_Char2D(int n, int m){
-  char** tab = malloc(n * sizeof(char*));
+char** allocate_Char2D(int m, int n){
+  char** tab = malloc(m * sizeof(char*));
   int i;
   for (i = 0; i < m; i++){
-    tab[i] = malloc(m * sizeof(char));
+    tab[i] = malloc(n * sizeof(char));
   }
   return tab;
 }

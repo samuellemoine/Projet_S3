@@ -1,5 +1,18 @@
 #include "headers.h"
 
+SDL_Texture* loadBMPSurface(SDL_Renderer* screen, char* path){
+  SDL_Surface* surf = SDL_LoadBMP(path);
+  if (surf == NULL){
+    SDL_Log("%s\n", SDL_GetError());
+  }
+  SDL_Texture* text = SDL_CreateTextureFromSurface(screen, surf);
+  if (text == NULL){
+    SDL_Log("%s\n", SDL_GetError());
+  }
+  SDL_FreeSurface(surf);
+  return text;
+}
+
 void readMazeFile(char* str, char** lines){
   FILE* maze;
   maze = fopen(str, "r");
@@ -31,13 +44,21 @@ void putInMaze(queue *mazeq, SDL_Rect** grid, char** lines){
 
 
 
-void readScoreFile(char* str, char** highScore){
-  FILE* sc;
-  sc = fopen(str, "r");
-  int c;
+void readScoreFile(char* path, char** highScore){
+  FILE* file = fopen(path, "r");
+  if (file == NULL){
+    fclose(file);
+    file = fopen(path, "w");
+    printf("No %s file was found.\nCreating the file ...\n", path);
+    fprintf(file, "0\n0\n0\n0\n");
+    fclose(file);
+    printf("Done.\n");
+    file = fopen(path, "r");
+  }
+  char c;
   int line = 0; int col = 0;
-  while ( (c = fgetc (sc)) != EOF ){
-    if (c != 10){  /* 10 is new line in ascii */
+  while ( (c = fgetc (file)) != EOF ){
+    if (c != '\n'){
       highScore[line][col] = c;
       col++;
     }
@@ -46,20 +67,19 @@ void readScoreFile(char* str, char** highScore){
       col = 0;
     }
   }
-  fclose(sc);
+  fclose(file);
 }
 
-void writeScoreFile(char* str, char** currentHigh, int line, int newHighScore){
-  FILE* sc;
-  sc = fopen(str, "w");
+void writeScoreFile(char* path, char** currentHigh, int line, int newHighScore){
+  FILE* file = fopen(path, "w");
   int i;
   for (i = 0; i < 4; i++){
     if (i != line){
-      fprintf(sc,"%s\n", currentHigh[i]);
+      fprintf(file,"%s\n", currentHigh[i]);
     }
     else{
-      fprintf(sc, "%d\n", newHighScore);
+      fprintf(file, "%d\n", newHighScore);
     }
   }
-  fclose(sc);
+  fclose(file);
 }
