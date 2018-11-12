@@ -61,7 +61,7 @@ void reset(bool *, bool *, bool *, bool *, int *, snake *, queue *, queue *, SDL
 void handleMenu(queue *, bool *, SDL_Event *, SDL_Renderer *, SDL_Texture *, int *, int *, int *, SDL_Rect **);
 void handleKeys(const Uint8 *, snake *, dir *, bool *, bool *);
 void move(snake *, SDL_Rect **, queue *, queue *, SDL_Rect *, bool *, bool *, int, int *);
-void drawScreen(queue *, queue *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Rect *, int, int, TTF_Font*, SDL_Rect**);
+void drawScreen(queue *, queue *, snake *, SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Rect *, int, int, bool, bool, TTF_Font*, SDL_Rect**);
 void clean(SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Window *, SDL_Rect **, queue *, queue *, TTF_Font *);
 
 /* function and method profiles for snake.c */

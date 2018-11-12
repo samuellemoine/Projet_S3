@@ -36,7 +36,6 @@ int main(void){
   bool gameover;            /* stops the snake from moving on on collision */
   bool dirChanged;          /* prevents the player from doing a complete turn back with the snake */
   reset(&started, &pause, &gameover, &dirChanged, &score, &head, body, mazeq, &food, grid); /* set the initial variables */
-
   SDL_Texture *topbarTexture = loadBMPSurface(screen, "topbar.bmp");
   SDL_Texture *gameTexture = loadBMPSurface(screen, "sprites.bmp");
   SDL_SetWindowIcon(window, NULL);
@@ -45,7 +44,7 @@ int main(void){
   while(playing){
     if (!gameover && started){
       handleKeys(keyboardState, &head, &direction, &pause, &dirChanged);
-      drawScreen(body, mazeq, &head, screen, gameTexture, topbarTexture, &food, mazeSelector, score, font, grid);
+      drawScreen(body, mazeq, &head, screen, gameTexture, topbarTexture, &food, mazeSelector, score, pause, !(head.dir.dx == 0 && head.dir.dy == 0), font, grid);
       if (!pause){
         move(&head, grid, body, mazeq, &food, &gameover, &dirChanged, level, &score);
       }
