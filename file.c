@@ -47,7 +47,6 @@ void putInMaze(queue *mazeq, SDL_Rect** grid, char** lines){
 void readScoreFile(char* path, char** highScore){
   FILE* file = fopen(path, "r");
   if (file == NULL){
-    fclose(file);
     file = fopen(path, "w");
     printf("No %s file was found.\nCreating the file ...\n", path);
     fprintf(file, "0\n0\n0\n0\n");
