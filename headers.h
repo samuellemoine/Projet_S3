@@ -21,12 +21,12 @@
 typedef struct Element Element;
 struct Element {
     SDL_Rect pos;
-    Element *nextPos;
+    Element* nextPos;
 };
 
 typedef struct Queue queue;
 struct Queue {
-    Element *head;
+    Element* head;
 };
 
 typedef struct Axe axe;
@@ -87,10 +87,13 @@ SDL_Rect queueTail(queue *);
 
 /* function and method profiles for file.c */
 SDL_Texture* loadBMPSurface(SDL_Renderer *, char *);
-void readMazeFile(char*, char**);
+void readMazeFile(char *, char **);
 void putInMaze(queue *, SDL_Rect **, char **);
 void readScoreFile(char *, char **);
 void writeScoreFile(char*, char **, int, int);
+int intLog(int, int);
+char* formattedScore(int, bool);
+
 
 /* function and method profiles for tab.c */
 SDL_Rect** allocate_Rect2D(int, int);

@@ -31,7 +31,7 @@ void readMazeFile(char* str, char** lines){
   fclose(maze);
 }
 
-void putInMaze(queue *mazeq, SDL_Rect** grid, char** lines){
+void putInMaze(queue* mazeq, SDL_Rect** grid, char** lines){
   int i; int j;
   for (i = 0; i < NBX; i++){
     for (j = 0; j < NBY; j++){
@@ -72,11 +72,38 @@ void writeScoreFile(char* path, char** currentHigh, int line, int newHighScore){
   int i;
   for (i = 0; i < 4; i++){
     if (i != line){
-      fprintf(file,"%s\n", currentHigh[i]);
+      fprintf(file,"%d\n", atoi(currentHigh[i]));
     }
     else{
       fprintf(file, "%d\n", newHighScore);
     }
   }
   fclose(file);
+}
+
+int intLog(int n, int base){
+  if (n < base){
+    return 1;
+  }
+  return 1 + intLog(n / base, base);
+}
+
+char* formattedScore(int s, bool type){
+  char* res = malloc(12 * sizeof(char));
+  if (type){
+    sprintf(res, "Score: ");
+  }
+  else{
+    sprintf(res, "High: ");
+  }
+  int size = intLog(s, 10);
+  int a;
+  for (a = 0; a < 4 - size; a++){
+    strcat(res, "0");
+  }
+  char* tmp = malloc(size * sizeof(char));
+  sprintf(tmp, "%d", s);
+  strcat(res, tmp);
+  free(tmp);
+  return res;
 }

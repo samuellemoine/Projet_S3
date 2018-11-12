@@ -1,14 +1,14 @@
 #include "headers.h"
 
 queue* initialize(){
-  queue *body = malloc(sizeof(*body));
+  queue* body = malloc(sizeof(*body));
   body->head = NULL;
   return body;
 }
 
-int queueSize(queue *body){
+int queueSize(queue* body){
   int i = 0;
-  Element *element = body->head;
+  Element* element = body->head;
   if (element == NULL){
     return -1;
   }
@@ -19,8 +19,8 @@ int queueSize(queue *body){
   return i;
 }
 
-void queueIn(queue *body, SDL_Rect *pos){
-  Element *newPos = malloc(sizeof(*newPos));
+void queueIn(queue* body, SDL_Rect* pos){
+  Element* newPos = malloc(sizeof(*newPos));
   if (body == NULL || newPos == NULL){
     exit(EXIT_FAILURE);
   }
@@ -28,7 +28,7 @@ void queueIn(queue *body, SDL_Rect *pos){
   newPos->nextPos = NULL;
 
   if (body->head != NULL){ /* queue not empty */
-    Element *element = body->head;
+    Element* element = body->head;
     while (element->nextPos != NULL){
       element = element->nextPos;
     }
@@ -39,20 +39,19 @@ void queueIn(queue *body, SDL_Rect *pos){
   }
 }
 
-void queueOut(queue *body){
+void queueOut(queue* body){
   if (body == NULL){
     exit(EXIT_FAILURE);
   }
-
   if (body->head != NULL){
-    Element *element = body->head;
+    Element* element = body->head;
     body->head = element->nextPos;
     free(element);
   }
 }
 
 /* returns the snake head */
-SDL_Rect queueBack(queue *body){
+SDL_Rect queueBack(queue* body){
   if (body == NULL){
     exit(EXIT_FAILURE);
   }
@@ -63,9 +62,8 @@ SDL_Rect queueBack(queue *body){
   return element->pos;
 }
 
-
 /* returns the snake tail */
-SDL_Rect queueFront(queue *body){
+SDL_Rect queueFront(queue* body){
   if (body == NULL){
     exit(EXIT_FAILURE);
   }

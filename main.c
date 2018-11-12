@@ -2,10 +2,10 @@
 
 int main(void){
 
-  SDL_Window *window = NULL;
-  SDL_Renderer *screen = NULL;
-  TTF_Font *font = NULL;
-  const Uint8 *keyboardState = NULL;
+  SDL_Window* window = NULL;
+  SDL_Renderer* screen = NULL;
+  TTF_Font* font = NULL;
+  const Uint8* keyboardState = NULL;
   if (init(&window, &screen, &font, &keyboardState) == EXIT_FAILURE){
     return EXIT_FAILURE;
   }
@@ -22,9 +22,9 @@ int main(void){
   }
   snake head;               /* head.dir and head.snakeRect initiate the movement */
   SDL_Rect food;            /* contains the food coordinates */
-  queue *body = initialize();    /* queue of SDL_Rect contains grid coordinates making the body follow the head */
+  queue* body = initialize();    /* queue of SDL_Rect contains grid coordinates making the body follow the head */
   queueIn(body, &head.snakeRect);
-  queue *mazeq = initialize();   /* queue of SDL_Rect for grid coordinates of the maze */
+  queue* mazeq = initialize();   /* queue of SDL_Rect for grid coordinates of the maze */
 
   int choice = 1;           /* switch between maze and speed selection in menu */
   int level = 0;            /* level in menu */
@@ -36,8 +36,8 @@ int main(void){
   bool gameover;            /* stops the snake from moving on on collision */
   bool dirChanged;          /* prevents the player from doing a complete turn back with the snake */
   reset(&started, &pause, &gameover, &dirChanged, &score, &head, body, mazeq, &food, grid); /* set the initial variables */
-  SDL_Texture *topbarTexture = loadBMPSurface(screen, "topbar.bmp");
-  SDL_Texture *gameTexture = loadBMPSurface(screen, "sprites.bmp");
+  SDL_Texture* topbarTexture = loadBMPSurface(screen, "topbar.bmp");
+  SDL_Texture* gameTexture = loadBMPSurface(screen, "sprites.bmp");
   SDL_SetWindowIcon(window, NULL);
 
   /* main loop */
@@ -64,7 +64,6 @@ int main(void){
         playing = false;
       }
     }
-
   }
   clean(screen, topbarTexture, gameTexture, window, grid, body, mazeq, font);
 

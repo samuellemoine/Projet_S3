@@ -1,6 +1,6 @@
 #include "headers.h"
 
-int init(SDL_Window **w, SDL_Renderer **r, TTF_Font **f, const Uint8 **keystate){
+int init(SDL_Window** w, SDL_Renderer** r, TTF_Font** f, const Uint8** keystate){
   if (SDL_Init(SDL_INIT_VIDEO)){
     SDL_Log("SDL Initialisation failed ! : %s", SDL_GetError());
     SDL_Quit();
@@ -11,7 +11,7 @@ int init(SDL_Window **w, SDL_Renderer **r, TTF_Font **f, const Uint8 **keystate)
     TTF_Quit();
     return EXIT_FAILURE;
   }
-  *f = TTF_OpenFont("font.ttf", 17);
+  *f = TTF_OpenFont("font.ttf", 150);
   if (*f == NULL){
     SDL_Log("Error while opening font: %s\n", TTF_GetError());
   }
@@ -34,7 +34,7 @@ int init(SDL_Window **w, SDL_Renderer **r, TTF_Font **f, const Uint8 **keystate)
   return EXIT_SUCCESS;
 }
 
-void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, int *score, snake *head, queue *body, queue *mazeq, SDL_Rect *food, SDL_Rect** grid){
+void reset(bool* started, bool* pause, bool* gameover, bool* dirChanged, int* score, snake* head, queue* body, queue* mazeq, SDL_Rect* food, SDL_Rect** grid){
     *started = false;
     *pause = true;
     *gameover = false;
@@ -54,7 +54,7 @@ void reset(bool *started, bool *pause, bool *gameover, bool *dirChanged, int *sc
     *food = randFood(body, mazeq);
 }
 
-void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *screen, SDL_Texture *menuTexture, int *choice, int *level, int *maze, SDL_Rect** grid){
+void handleMenu(queue* mazeq, bool* started, SDL_Event* event, SDL_Renderer* screen, SDL_Texture* menuTexture, int* choice, int* level, int* maze, SDL_Rect** grid){
   char** lines = allocate_Char2D(NBX, NBY);
   if(event->type == SDL_KEYDOWN){
     switch (event->key.keysym.sym){
@@ -115,7 +115,7 @@ void handleMenu(queue *mazeq, bool *started, SDL_Event *event, SDL_Renderer *scr
 
 }
 
-void handleKeys(const Uint8 *keyboardState, snake *head, dir *direction, bool *pause, bool *dirChanged){
+void handleKeys(const Uint8* keyboardState, snake* head, dir* direction, bool* pause, bool* dirChanged){
   bool arrowPressed = keyboardState[SDL_SCANCODE_LEFT] || keyboardState[SDL_SCANCODE_RIGHT] || keyboardState[SDL_SCANCODE_UP] || keyboardState[SDL_SCANCODE_DOWN];
   if (arrowPressed  && *pause){
         *pause = false;
@@ -142,7 +142,7 @@ void handleKeys(const Uint8 *keyboardState, snake *head, dir *direction, bool *p
   }
 }
 
-void move(snake *head, SDL_Rect ** grid, queue *body, queue *mazeq, SDL_Rect *food, bool *gameover, bool *dirChanged, int level, int *score){
+void move(snake* head, SDL_Rect** grid, queue* body, queue* mazeq, SDL_Rect* food, bool* gameover, bool* dirChanged, int level, int* score){
   timeout(ADJUST_LEVEL - level);
 
   bool headMoved, eats, isInLimits;
@@ -165,7 +165,10 @@ void move(snake *head, SDL_Rect ** grid, queue *body, queue *mazeq, SDL_Rect *fo
   /* apply temporary positions whe tmpPos within limits */
   if (tmpPosX >= 0 && tmpPosX < SCREEN_WIDTH)  head->snakeRect.x = tmpPosX;
   if (tmpPosY >= TOP_BAR && tmpPosY < SCREEN_HEIGHT + TOP_BAR)  head->snakeRect.y = tmpPosY;
-
+  if (snakeContact(body) || mazeContact(head, mazeq)){
+    *gameover = true;
+    return;
+  }
   /* determine position in the grid */
   xx = indice(head->snakeRect.x, SNAKE_WIDTH);
   yy = indice(head->snakeRect.y - TOP_BAR, SNAKE_HEIGHT);
@@ -174,7 +177,6 @@ void move(snake *head, SDL_Rect ** grid, queue *body, queue *mazeq, SDL_Rect *fo
   eats = foodContact(&head->snakeRect, food);
   headMoved = (indice(currentHead.x, SNAKE_WIDTH) != xx) || (indice(currentHead.y - TOP_BAR, SNAKE_HEIGHT) != yy);
   isInLimits = xx >= 0 && xx < NBX && yy >= 0 && yy < NBY;
-
   if (isInLimits && headMoved){
     *dirChanged = false;
     if (eats){
@@ -186,20 +188,13 @@ void move(snake *head, SDL_Rect ** grid, queue *body, queue *mazeq, SDL_Rect *fo
       queueIn(body, &grid[xx][yy]);
       queueOut(body);
     }
-    if (snakeContact(body) || mazeContact(head, mazeq))  *gameover = true;
   }
-
 }
 
 void drawScreen(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SDL_Texture *gameTexture, SDL_Texture *topbarTexture, SDL_Rect *food, int mazeSelector, int score, bool pause, bool gameover, bool firstRound, TTF_Font *font, SDL_Rect** grid){
     if (body == NULL){
         exit(EXIT_FAILURE);
     }
-
-    char scoreChar[12];
-    sprintf(scoreChar, "Score: %d", score);
-
-    char highScoreChar[12];
     char** highScores = allocate_Char2D(4, 4);
     readScoreFile("highScores.txt", highScores);
     int highScore = atoi(highScores[mazeSelector]);
@@ -207,15 +202,18 @@ void drawScreen(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SD
       writeScoreFile("highScores.txt", highScores, mazeSelector, score);
     }
     free_Char2D(highScores, 4);
-    sprintf(highScoreChar, "High: %d", highScore);
-    SDL_Color fontColor = (SDL_Color) {22, 22, 22, 255};
-    SDL_Surface *scoreSurface = TTF_RenderText_Solid(font, scoreChar, fontColor);
-    SDL_Texture *scoreTexture = SDL_CreateTextureFromSurface(screen, scoreSurface);
-    SDL_Surface *highScoreSurface = TTF_RenderText_Solid(font, highScoreChar, fontColor);
-    SDL_Texture *highScoreTexture = SDL_CreateTextureFromSurface(screen, highScoreSurface);
+    char* highScoreChar = formattedScore(highScore, true);
+    char* scoreChar = formattedScore(score, false);
 
-    SDL_Rect scoreRect = {SNAKE_WIDTH, SNAKE_HEIGHT / 2, 200, SNAKE_WIDTH * 2};
-    SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 + SNAKE_WIDTH, SNAKE_HEIGHT / 2, 200, SNAKE_WIDTH * 2};
+    SDL_Color fontColor = (SDL_Color) {22, 22, 22, 255};
+    SDL_Rect scoreRect = {SNAKE_WIDTH, SNAKE_HEIGHT / 2, SCREEN_HEIGHT / 5 * 2, SNAKE_WIDTH * 2};
+    SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 + SNAKE_WIDTH, SNAKE_HEIGHT / 2, SCREEN_HEIGHT / 5 * 2, SNAKE_WIDTH * 2};
+    SDL_Surface* scoreSurface = TTF_RenderText_Solid(font, scoreChar, fontColor);
+    SDL_Texture* scoreTexture = SDL_CreateTextureFromSurface(screen, scoreSurface);
+    SDL_Surface* highScoreSurface = TTF_RenderText_Solid(font, highScoreChar, fontColor);
+    SDL_Texture* highScoreTexture = SDL_CreateTextureFromSurface(screen, highScoreSurface);
+    free(scoreChar);
+    free(highScoreChar);
 
     /* this if - else if block smoothens the snake's movement */
     int i = 0;
@@ -240,15 +238,17 @@ void drawScreen(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SD
     SDL_Rect snakeRect = (SDL_Rect) { 1280, 340, 30, 30 };
     SDL_Rect foodRect = (SDL_Rect) { 1340, 340, 30, 30 };
     SDL_Rect wallRect = (SDL_Rect) { 1310, 340, 30, 30 };
+
     SDL_RenderClear(screen);
     SDL_RenderCopy(screen, gameTexture, &foodRect, food);
-    SDL_RenderCopy(screen, gameTexture, &snakeRect, &smoothHead); /* display the aligned head to smoothen the front movement*/
+    /* display the aligned head to smoothen the front movement*/
+    if (!gameover) SDL_RenderCopy(screen, gameTexture, &snakeRect, &smoothHead);
     SDL_RenderCopy(screen, topbarTexture, &topbarRect, &topbarRect);
     SDL_RenderCopy(screen, scoreTexture, NULL, &scoreRect);
     SDL_RenderCopy(screen, highScoreTexture, NULL, &highScoreRect);
 
     /* display the snake blocks */
-    Element *element = body->head;
+    Element* element = body->head;
     while (element != NULL){
       SDL_RenderCopy(screen, gameTexture, &snakeRect, &element->pos);
       element = element->nextPos;
@@ -259,22 +259,26 @@ void drawScreen(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SD
       SDL_RenderCopy(screen, gameTexture, &wallRect, &element->pos);
       element = element->nextPos;
     }
-    SDL_Surface *pauseSurface = NULL;
-    SDL_Texture *pauseTexture = NULL;
-    SDL_Surface *gameoverSurface = NULL;
-    SDL_Texture *gameoverTexture = NULL;
-    SDL_Rect fontRect = (SDL_Rect) { SNAKE_WIDTH, SCREEN_HEIGHT / 2 - SCREEN_HEIGHT / 8, SCREEN_WIDTH - SNAKE_WIDTH, SCREEN_HEIGHT / 4 };
-    if (pause && !firstRound){
-      pauseSurface = TTF_RenderText_Solid(font, "Paused", (SDL_Color) {45, 0, 0, 255});
-      pauseTexture = SDL_CreateTextureFromSurface(screen, pauseSurface);
-      SDL_RenderCopy(screen, pauseTexture, NULL, &fontRect);
-    }
-    if (!firstRound && gameover){
-      gameoverSurface = TTF_RenderText_Solid(font, "Gameover", (SDL_Color) {45, 0, 0, 255});
-      gameoverTexture = SDL_CreateTextureFromSurface(screen, gameoverSurface);
-      SDL_RenderCopy(screen, gameoverTexture, NULL, &fontRect);
+
+    SDL_Surface* pauseSurface = NULL;
+    SDL_Texture* pauseTexture = NULL;
+    SDL_Surface* gameoverSurface = NULL;
+    SDL_Texture* gameoverTexture = NULL;
+    SDL_Rect messageRect = (SDL_Rect) { SNAKE_WIDTH / 6 * 5, SCREEN_HEIGHT / 2 - SCREEN_HEIGHT / 8 + TOP_BAR / 2, SCREEN_WIDTH - SNAKE_WIDTH, SCREEN_HEIGHT / 4 };
+    if (!firstRound){
+      if (gameover){
+        gameoverSurface = TTF_RenderText_Solid(font, "Gameover", (SDL_Color) {45, 0, 0, 255});
+        gameoverTexture = SDL_CreateTextureFromSurface(screen, gameoverSurface);
+        SDL_RenderCopy(screen, gameoverTexture, NULL, &messageRect);
+      }
+      else if (pause){
+        pauseSurface = TTF_RenderText_Solid(font, "Paused", (SDL_Color) {45, 0, 0, 255});
+        pauseTexture = SDL_CreateTextureFromSurface(screen, pauseSurface);
+        SDL_RenderCopy(screen, pauseTexture, NULL, &messageRect);
+      }
     }
     SDL_RenderPresent(screen);
+
     /* clean used surfaces and textures */
     SDL_FreeSurface(pauseSurface);
     SDL_DestroyTexture(pauseTexture);
