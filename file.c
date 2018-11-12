@@ -42,8 +42,6 @@ void putInMaze(queue *mazeq, SDL_Rect** grid, char** lines){
   }
 }
 
-
-
 void readScoreFile(char* path, char** highScore){
   FILE* file = fopen(path, "r");
   if (file == NULL){
