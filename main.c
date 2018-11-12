@@ -42,10 +42,10 @@ int main(void){
 
   /* main loop */
   while(playing){
-    if (!gameover && started){
+    if (started){
       handleKeys(keyboardState, &head, &direction, &pause, &dirChanged);
-      drawScreen(body, mazeq, &head, screen, gameTexture, topbarTexture, &food, mazeSelector, score, pause, !(head.dir.dx == 0 && head.dir.dy == 0), font, grid);
-      if (!pause){
+      drawScreen(body, mazeq, &head, screen, gameTexture, topbarTexture, &food, mazeSelector, score, pause, gameover, head.dir.dx == 0 && head.dir.dy == 0, font, grid);
+      if (!pause && !gameover){
         move(&head, grid, body, mazeq, &food, &gameover, &dirChanged, level, &score);
       }
     }
