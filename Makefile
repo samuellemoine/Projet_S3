@@ -6,9 +6,9 @@ all: game
 game: main.o core.o snake.o queue.o file.o tab.o headers.h
 	$(CC) $(CFLAGS) main.o core.o snake.o queue.o file.o tab.o $(LDFLAGS) -o game
 main.o: main.c headers.h
-	$(CC) $(CFLAGS) -c main.c headers.h
+	$(CC) $(CFLAGS) -c main.c
 core.o: core.c headers.h
-		$(CC) $(CFLAGS) -c core.c headers.h
+		$(CC) $(CFLAGS) -c core.c
 snake.o: snake.c headers.h
 	$(CC) $(CFLAGS) -c snake.c
 queue.o: queue.c headers.h
@@ -23,4 +23,4 @@ clean:
 
 mrproper: clean
 	rm -rf game
-	rm -rf highscores.txt
+	rm -rf highScores.txt
