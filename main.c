@@ -6,20 +6,15 @@ int main(void){
   SDL_Renderer* screen = NULL;
   TTF_Font* font = NULL;
   const Uint8* keyboardState = NULL;
-  if (init(&window, &screen, &font, &keyboardState) == EXIT_FAILURE){
+  SDL_Rect** grid = allocate_Rect2D(NBY, NBX);   /* fixed positions of the snake */
+  if (init(&window, &screen, &font, &keyboardState, grid) == EXIT_FAILURE){
     return EXIT_FAILURE;
   }
   SDL_Event event;
 
   /* { axe.dx, axe.dy }   left,   right,    up,     down */
   dir direction     = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
-  SDL_Rect** grid = allocate_Rect2D(NBX, NBY);   /* fixed positions of the snake */
-  int i; int j;
-  for (i = 0; i < NBX; i++){
-    for (j = 0; j < NBY; j++){
-      setRect(&grid[i][j], i * SNAKE_WIDTH, TOP_BAR + j * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT);
-    }
-  }
+
   snake head;               /* head.dir and head.snakeRect initiate the movement */
   SDL_Rect food;            /* contains the food coordinates */
   queue* body = initialize();    /* queue of SDL_Rect contains grid coordinates making the body follow the head */

@@ -1,6 +1,6 @@
 #include "headers.h"
 
-int init(SDL_Window** w, SDL_Renderer** r, TTF_Font** f, const Uint8** keystate){
+int init(SDL_Window** w, SDL_Renderer** r, TTF_Font** f, const Uint8** keystate, SDL_Rect** grid){
   if (SDL_Init(SDL_INIT_VIDEO)){
     SDL_Log("SDL Initialisation failed ! : %s", SDL_GetError());
     SDL_Quit();
@@ -30,7 +30,12 @@ int init(SDL_Window** w, SDL_Renderer** r, TTF_Font** f, const Uint8** keystate)
   SDL_SetRenderDrawColor(*r, 54, 54, 54, 255);  /* background color */
   *keystate = SDL_GetKeyboardState(NULL);  /* pointer to an array of key states */
   srand(time(0));             /* initiate the Pseudo-Random Number Generator */
-
+  int i; int j;
+  for (i = 0; i < NBY; i++){
+    for (j = 0; j < NBX; j++){
+      setRect(&grid[i][j], j * SNAKE_WIDTH, TOP_BAR + i * SNAKE_HEIGHT, SNAKE_WIDTH, SNAKE_HEIGHT);
+    }
+  }
   return EXIT_SUCCESS;
 }
 
@@ -47,7 +52,7 @@ void reset(bool* started, bool* pause, bool* gameover, bool* dirChanged, int* sc
     while (queueSize(mazeq) >= 0){
       queueOut(mazeq);
     }
-    setRect(&head->snakeRect, grid[NBX/2][NBY/2].x, grid[NBX/2][NBY/2].y, SNAKE_WIDTH, SNAKE_HEIGHT);
+    setRect(&head->snakeRect, grid[NBY/2][NBX/2].x, grid[NBY/2][NBX/2].y, SNAKE_WIDTH, SNAKE_HEIGHT);
     setDir(&head->dir, &ini);
     queueIn(body, &head->snakeRect);
     queueOut(body);
@@ -55,7 +60,7 @@ void reset(bool* started, bool* pause, bool* gameover, bool* dirChanged, int* sc
 }
 
 void handleMenu(queue* mazeq, bool* started, SDL_Event* event, SDL_Renderer* screen, SDL_Texture* menuTexture, int* choice, int* level, int* maze, SDL_Rect** grid){
-  char** lines = allocate_Char2D(NBX, NBY);
+  char** lines = allocate_Char2D(NBY, NBX);
   if(event->type == SDL_KEYDOWN){
     switch (event->key.keysym.sym){
       case SDLK_LEFT:
@@ -88,14 +93,13 @@ void handleMenu(queue* mazeq, bool* started, SDL_Event* event, SDL_Renderer* scr
         *started = true;
         switch (*maze){
           case 1:
-            readMazeFile("maze1.txt", lines);
-            putInMaze(mazeq, grid, lines);
+            readMazeFile("mazeWalls.txt", mazeq, grid, lines);
           break;
 	        case 2:
-            randMaze(15 + rand()%15, mazeq, grid);
+            randMaze(15 + rand()%15, mazeq, grid, lines, "lastRandom.txt");
 	        break;
           case 3:
-            randMaze(33 + rand()%17, mazeq, grid);
+            randMaze(33 + rand()%17, mazeq, grid, lines, "lastHardRandom.txt");
           break;
         }
       break;
@@ -104,7 +108,7 @@ void handleMenu(queue* mazeq, bool* started, SDL_Event* event, SDL_Renderer* scr
   free_Char2D(lines, NBY);
 
   SDL_Rect leftRect = (SDL_Rect) { 4 * SCREEN_WIDTH / 25, 6 * SCREEN_HEIGHT / 25, 8 * SCREEN_WIDTH / 25, 17 * SCREEN_HEIGHT / 25 };
-  SDL_Rect rightRect = (SDL_Rect) { 13 * SCREEN_WIDTH / 25, 6 * SCREEN_WIDTH / 25, 8 * SCREEN_WIDTH / 25, 17 * SCREEN_WIDTH / 25 };
+  SDL_Rect rightRect = (SDL_Rect) { 13 * SCREEN_WIDTH / 25, 6 * SCREEN_HEIGHT / 25, 8 * SCREEN_WIDTH / 25, 17 * SCREEN_HEIGHT / 25 };
   SDL_Rect mazeSprite = (SDL_Rect) { (*maze * 2 + !*choice) * 160, 340, 160, 340 };
   SDL_Rect levelSprite = (SDL_Rect) { (*level * 2 + *choice) * 160, 0, 160, 340 };
 
@@ -180,12 +184,12 @@ void move(snake* head, SDL_Rect** grid, queue* body, queue* mazeq, SDL_Rect* foo
   if (isInLimits && headMoved){
     *dirChanged = false;
     if (eats){
-      queueIn(body, &grid[xx][yy]);
-      *score += level + 1;
+      queueIn(body, &grid[yy][xx]);
+      *score +=  level + 1;
       *food = randFood(body, mazeq);
     }
     else{
-      queueIn(body, &grid[xx][yy]);
+      queueIn(body, &grid[yy][xx]);
       queueOut(body);
     }
   }
@@ -195,19 +199,19 @@ void drawScreen(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SD
     if (body == NULL){
         exit(EXIT_FAILURE);
     }
-    char** highScores = allocate_Char2D(4, 4);
-    readScoreFile("highScores.txt", highScores);
-    int highScore = atoi(highScores[mazeSelector]);
+    int* allScores = malloc(4 * sizeof(int));
+    readScoreFile("highScores.txt", allScores);
+    int highScore = allScores[mazeSelector];
     if (score > highScore){
-      writeScoreFile("highScores.txt", highScores, mazeSelector, score);
+      writeScoreFile("highScores.txt", allScores, mazeSelector, score);
     }
-    free_Char2D(highScores, 4);
+    free(allScores);
     char* highScoreChar = formattedScore(highScore, true);
     char* scoreChar = formattedScore(score, false);
 
     SDL_Color fontColor = (SDL_Color) {22, 22, 22, 255};
-    SDL_Rect scoreRect = {SNAKE_WIDTH, SNAKE_HEIGHT / 2, SCREEN_HEIGHT / 5 * 2, SNAKE_WIDTH * 2};
-    SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 + SNAKE_WIDTH, SNAKE_HEIGHT / 2, SCREEN_HEIGHT / 5 * 2, SNAKE_WIDTH * 2};
+    SDL_Rect scoreRect = {SNAKE_WIDTH, SNAKE_HEIGHT / 2, SCREEN_WIDTH / 5 * 2, SCREEN_HEIGHT / 10};
+    SDL_Rect highScoreRect = {SCREEN_WIDTH / 2 + SNAKE_WIDTH, SNAKE_HEIGHT / 2, SCREEN_WIDTH / 5 * 2, SCREEN_HEIGHT / 10};
     SDL_Surface* scoreSurface = TTF_RenderText_Solid(font, scoreChar, fontColor);
     SDL_Texture* scoreTexture = SDL_CreateTextureFromSurface(screen, scoreSurface);
     SDL_Surface* highScoreSurface = TTF_RenderText_Solid(font, highScoreChar, fontColor);
@@ -224,14 +228,14 @@ void drawScreen(queue *body, queue *mazeq, snake *head, SDL_Renderer *screen, SD
       if (head->dir.dy == -1){
         j = - SNAKE_HEIGHT;
       }
-      setRect(&smoothHead, grid[i][0].x, head->snakeRect.y + j, SNAKE_WIDTH, SNAKE_HEIGHT);
+      setRect(&smoothHead, grid[0][i].x, head->snakeRect.y + j, SNAKE_WIDTH, SNAKE_HEIGHT);
     }
     else if (head->dir.dy == 0){
       j = indice(head->snakeRect.y - TOP_BAR, SNAKE_HEIGHT);
       if (head->dir.dx == -1){
         i = - SNAKE_WIDTH;
       }
-      setRect(&smoothHead, head->snakeRect.x + i, grid[0][j].y, SNAKE_WIDTH, SNAKE_HEIGHT);
+      setRect(&smoothHead, head->snakeRect.x + i, grid[j][0].y, SNAKE_WIDTH, SNAKE_HEIGHT);
     }
 
     SDL_Rect topbarRect = (SDL_Rect) { 0, 0, SCREEN_WIDTH, TOP_BAR };
@@ -296,7 +300,7 @@ void clean(SDL_Renderer *screen, SDL_Texture *topbarTexture, SDL_Texture *gameTe
   SDL_DestroyTexture(topbarTexture);
   SDL_DestroyTexture(gameTexture);
   SDL_DestroyWindow(window);
-  free_Rect2D(grid, NBX);
+  free_Rect2D(grid, NBY);
   while (body->head != NULL){
     queueOut(body);
   }

@@ -7,12 +7,12 @@
 #include <string.h>
 #include <time.h>
 
-#define NBX               20
-#define NBY               NBX
-#define SCREEN_WIDTH      500
-#define SCREEN_HEIGHT     SCREEN_WIDTH
-#define SNAKE_WIDTH       SCREEN_WIDTH / NBX
-#define SNAKE_HEIGHT      SCREEN_HEIGHT / NBY
+#define SCREEN_WIDTH      625
+#define SCREEN_HEIGHT     500
+#define SNAKE_WIDTH       25
+#define SNAKE_HEIGHT      SNAKE_WIDTH
+#define NBX               SCREEN_WIDTH / SNAKE_WIDTH
+#define NBY               SCREEN_HEIGHT / SNAKE_HEIGHT
 #define TOP_BAR           SNAKE_WIDTH * 3
 
 #define VELOCITY          1
@@ -56,7 +56,7 @@ struct Coord {
 };
 
 /* function and method profiles for core.c */
-int init(SDL_Window **, SDL_Renderer **r, TTF_Font **, const Uint8 **);
+int init(SDL_Window **, SDL_Renderer **r, TTF_Font **, const Uint8 **, SDL_Rect **);
 void reset(bool *, bool *, bool *, bool *, int *, snake *, queue *, queue *, SDL_Rect *, SDL_Rect **);
 void handleMenu(queue *, bool *, SDL_Event *, SDL_Renderer *, SDL_Texture *, int *, int *, int *, SDL_Rect **);
 void handleKeys(const Uint8 *, snake *, dir *, bool *, bool *);
@@ -72,8 +72,8 @@ bool foodContact(SDL_Rect *, SDL_Rect *);
 bool snakeContact(queue *);
 bool mazeContact(snake *, queue *);
 SDL_Rect randFood(queue *, queue *);
-bool validRand(queue *, queue *, int, int);
-void randMaze(int, queue *, SDL_Rect**);
+bool validFood(queue *, queue *, int, int);
+void randMaze(int, queue *, SDL_Rect **, char **, char *);
 bool validMaze(int, int);
 void timeout(int);
 
@@ -87,10 +87,11 @@ SDL_Rect queueTail(queue *);
 
 /* function and method profiles for file.c */
 SDL_Texture* loadBMPSurface(SDL_Renderer *, char *);
-void readMazeFile(char *, char **);
+void readMazeFile(char *, queue *, SDL_Rect **, char **);
+void writeMazeFile(char *, char **);
 void putInMaze(queue *, SDL_Rect **, char **);
-void readScoreFile(char *, char **);
-void writeScoreFile(char*, char **, int, int);
+void readScoreFile(char *, int *);
+void writeScoreFile(char*, int *, int, int);
 int intLog(int, int);
 char* formattedScore(int, bool);
 

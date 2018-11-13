@@ -1,7 +1,7 @@
 #include "headers.h"
 
 void setRect(SDL_Rect *r, int x, int y, int w, int h){
-  r->x = x; r->y = y; r->w=w, r->h=h;
+  r->x = x; r->y = y; r->w = w, r->h = h;
 }
 
 void setDir(axe *currentDir, axe *dir){
@@ -54,14 +54,14 @@ bool mazeContact(snake *head, queue *mazeq){
 SDL_Rect randFood(queue *body, queue *mazeq){
   int randx = rand()%(NBX);
   int randy = rand()%(NBY);
-  if (!validRand(body, mazeq, randx, randy)){
+  if (!validFood(body, mazeq, randx, randy)){
     return randFood(body, mazeq);
   }
   SDL_Rect r = {randx * SNAKE_WIDTH, randy * SNAKE_HEIGHT + TOP_BAR, SNAKE_WIDTH, SNAKE_HEIGHT };
   return r;
 }
 
-bool validRand(queue *body, queue *mazeq, int x, int y){
+bool validFood(queue *body, queue *mazeq, int x, int y){
   if ( x < 0 || y < 0 || x >= NBX || y >= NBY ) return false;
   int cpt = 0;
   int i, j;
@@ -91,28 +91,31 @@ bool validRand(queue *body, queue *mazeq, int x, int y){
   return true;
 }
 
-void randMaze(int nb, queue *mazeq, SDL_Rect** grid){
+void randMaze(int nb, queue *mazeq, SDL_Rect** grid, char** lines, char* path){
   if (nb == 0){
+    writeMazeFile(path, lines);
     return;
   }
   int x = rand()%(NBX);
   int y = rand()%(NBY);
   Element *element = mazeq->head;
   while (element != NULL){
-    if ( (element->pos.x / SNAKE_WIDTH == x && (element->pos.y - TOP_BAR) / SNAKE_HEIGHT == y) || !validMaze(x, y)){
-      return randMaze(nb, mazeq, grid);
+    if ( (element->pos.x == x * SNAKE_WIDTH && (element->pos.y - TOP_BAR) == y * SNAKE_HEIGHT) || !validMaze(x, y)){
+      return randMaze(nb, mazeq, grid, lines, path);
     }
     element = element->nextPos;
   }
-  queueIn(mazeq, &grid[x][y]);
-  return randMaze(nb - 1, mazeq, grid);
+  queueIn(mazeq, &grid[y][x]);
+  lines[y][x] = '1';
+  return randMaze(nb - 1, mazeq, grid, lines, path);
 }
 
 bool validMaze(int x, int y){
-  int i, j;
+  int i; int j;
+  if (x >= NBX || y >= NBY) return false;
   for (i = -3; i < 4; i++){
     for (j = -3; j < 4; j++){
-      if ( x == NBX/2 + i && y == NBX/2 + j ){
+      if ( x == NBX / 2 + i && y == NBY / 2 + j ){
         return false;
       }
     }

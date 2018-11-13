@@ -20,7 +20,7 @@ tab.o: tab.c
 
 clean:
 	rm -rf *.o
+	rm -rf *.txt
 
 mrproper: clean
 	rm -rf game
-	rm -rf highScores.txt
