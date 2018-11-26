@@ -1,7 +1,16 @@
 #include "headers.h"
 
+SDL_Texture* loadTTFTexture(SDL_Renderer* screen, TTF_Font* font, SDL_Color* color, char* word){
+  SDL_Surface* surf = TTF_RenderText_Solid(font, word, *color);
+  SDL_Texture* text = SDL_CreateTextureFromSurface(screen, surf);
+  SDL_FreeSurface(surf);
+  return text;
+}
+
 SDL_Texture* loadBMPSurface(SDL_Renderer* screen, char* path){
   SDL_Surface* surf = SDL_LoadBMP(path);
+  SDL_SetColorKey(surf, SDL_TRUE, SDL_MapRGB(surf->format, 249, 162, 255));
+
   if (surf == NULL){
     SDL_Log("%s\n", SDL_GetError());
   }
@@ -60,8 +69,6 @@ void writeMazeFile(char* path, char** lines){
     }
   }
   fclose(mazeFile);
-  printf("Writing maze to file %s ...\n", path);
-  printf("Done.\n");
 }
 
 void putInMaze(queue* mazeq, SDL_Rect** grid, char** lines){
@@ -69,7 +76,7 @@ void putInMaze(queue* mazeq, SDL_Rect** grid, char** lines){
   for (i = 0; i < NBY; i++){
     for (j = 0; j < NBX; j++){
       if (lines[i][j] == '1'){
-        queueIn(mazeq, &grid[i][j]);
+        queueIn(mazeq, &grid[i][j], NULL);
       }
     }
   }
@@ -80,7 +87,7 @@ void readScoreFile(char* path, int* allScores){
   if (file == NULL){
     file = fopen(path, "w");
     printf("No %s file was found.\nCreating the file ...\n", path);
-    fprintf(file, "0\n0\n0\n0\n");
+    fprintf(file, "0\n0\n0\n0\n0\n");
     fclose(file);
     printf("Done.\n");
     file = fopen(path, "r");
@@ -97,7 +104,7 @@ void readScoreFile(char* path, int* allScores){
 void writeScoreFile(char* path, int* currentHigh, int line, int newHighScore){
   FILE* file = fopen(path, "w");
   int i;
-  for (i = 0; i < 4; i++){
+  for (i = 0; i < 5; i++){
     if (i != line){
       fprintf(file,"%d\n", currentHigh[i]);
     }

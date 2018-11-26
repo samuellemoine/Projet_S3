@@ -1,24 +1,24 @@
 #include "headers.h"
 
 int main(void){
-
   SDL_Window* window = NULL;
   SDL_Renderer* screen = NULL;
   TTF_Font* font = NULL;
   const Uint8* keyboardState = NULL;
   SDL_Rect** grid = allocate_Rect2D(NBY, NBX);   /* fixed positions of the snake */
-  if (init(&window, &screen, &font, &keyboardState, grid) == EXIT_FAILURE){
+  if (init(window, &screen, &font, &keyboardState, grid) == EXIT_FAILURE){
     return EXIT_FAILURE;
   }
+  SDL_SetWindowIcon(window, NULL);
+
   SDL_Event event;
 
   /* { axe.dx, axe.dy }   left,   right,    up,     down */
   dir direction     = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
-
   snake head;               /* head.dir and head.snakeRect initiate the movement */
   SDL_Rect food;            /* contains the food coordinates */
   queue* body = initialize();    /* queue of SDL_Rect contains grid coordinates making the body follow the head */
-  queueIn(body, &head.snakeRect);
+  queueIn(body, &head.snakeRect, NULL);
   queue* mazeq = initialize();   /* queue of SDL_Rect for grid coordinates of the maze */
 
   int choice = 1;           /* switch between maze and speed selection in menu */
@@ -31,36 +31,67 @@ int main(void){
   bool gameover;            /* stops the snake from moving on on collision */
   bool dirChanged;          /* prevents the player from doing a complete turn back with the snake */
   reset(&started, &pause, &gameover, &dirChanged, &score, &head, body, mazeq, &food, grid); /* set the initial variables */
-  SDL_Texture* topbarTexture = loadBMPSurface(screen, "topbar.bmp");
-  SDL_Texture* gameTexture = loadBMPSurface(screen, "sprites.bmp");
-  SDL_SetWindowIcon(window, NULL);
 
+  SDL_Texture* gameTexture = loadBMPSurface(screen, "surf.bmp");
+  SDL_Texture* menuTexture = loadBMPSurface(screen, "menu.bmp");
+
+  /* control of color variations */
+  double dc = 1.0 / 32.0;
+  //double dc = 0.5;
+  fadeColor* color = malloc(2 * sizeof(fadeColor));
+  color[0].rgb = 0.0; color[0].variation = dc;
+  color[1].rgb = 180.0; color[1].variation = -dc;
+  SDL_SetRenderDrawColor(screen, 140 - (int) color[0].rgb, 140 - (int) color[0].rgb, 140 - (int) color[0].rgb, 255);  /* background color */
+
+
+  /* control of drawScreen() framerate */
+  int milliseconds, end;
+  double fps = 0;
+  int frames = 0;
+  int frameNb = 0;
+
+  bool smoothTailFrame = true;
+  SDL_Rect lastTail = (SDL_Rect) {0, 0, SNAKE_WIDTH, SNAKE_HEIGHT};
   /* main loop */
   while(playing){
+    if (frameNb >= frames) frameNb = 0;
+    milliseconds = clock() * 1000 / CLOCKS_PER_SEC;
+
     if (started){
-      handleKeys(keyboardState, &head, &direction, &pause, &dirChanged);
-      drawScreen(body, mazeq, &head, screen, gameTexture, topbarTexture, &food, mazeSelector, score, pause, gameover, head.dir.dx == 0 && head.dir.dy == 0, font, grid);
-      if (!pause && !gameover){
-        move(&head, grid, body, mazeq, &food, &gameover, &dirChanged, level, &score);
+      if (frameNb == frames - 1) drawScreen(body, mazeq, &head, screen, gameTexture, &food, mazeSelector, score, pause, gameover, head.dir.dx == 0 && head.dir.dy == 0, color, font, grid, &smoothTailFrame, &lastTail);
+      if (!gameover){
+        handleKeys(keyboardState, &head, &direction, &pause, &dirChanged);
+        if (!pause){
+          move(&head, grid, body, mazeq, &food, &gameover, &dirChanged, level, &score);
+        }
       }
     }
-    while(SDL_PollEvent(&event)){
+    while (SDL_PollEvent(&event)){
       if (gameover){      /* reset to initial variables when game is over */
         if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_RETURN){
           reset(&started, &pause, &gameover, &dirChanged, &score, &head, body, mazeq, &food, grid);
         }
       }
       if (!started){      /* menu selector */
-        handleMenu(mazeq, &started, &event, screen, gameTexture, &choice, &level, &mazeSelector, grid);
-        food = randFood(body, mazeq);   /* food position randomizer needs to be called after the maze map has been loaded */
+        handleMenu(mazeq, &started, &food, &event, screen, menuTexture, &choice, &level, &mazeSelector, grid);
       }
       /* quit the game */
       if (event.type == SDL_QUIT || keyboardState[SDL_SCANCODE_ESCAPE]){
         playing = false;
       }
     }
+
+    if (started){
+      end = milliseconds + ADJUST_LEVEL + 12 - 3*level;
+      fps = (double)(1.0 / ((end - milliseconds)/1000.0));
+      frames = (int) (fps / 35);
+      milliseconds = clock() * 1000 / CLOCKS_PER_SEC;
+      if (milliseconds > end) printf("Problem: Current: %d End: %d\n", milliseconds, end);
+      while (milliseconds < end) milliseconds = clock() * 1000 / CLOCKS_PER_SEC;
+      frameNb += 1;
+    }
   }
-  clean(screen, topbarTexture, gameTexture, window, grid, body, mazeq, font);
+  clean(screen, menuTexture, window, grid, body, mazeq, font, color);
 
   return EXIT_SUCCESS;
 }
