@@ -2,11 +2,8 @@
 
 void colorVariation(fadeColor* col){
   if (col[0].rgb == 100.0) col[0].variation = - fabs(col[0].variation);
-  if (col[0].rgb == 0.0) col[0].variation = fabs(col[0].variation);
+  if (col[0].rgb == 40.0) col[0].variation = fabs(col[0].variation);
   col[0].rgb += col[0].variation;
-  if (col[1].rgb == 255.0) col[1].variation = - fabs(col[1].variation);
-  if (col[1].rgb == 127.0) col[1].variation = fabs(col[1].variation);
-  col[1].rgb += col[1].variation;
 }
 
 void setRect(SDL_Rect* r, int x, int y, int w, int h){
@@ -29,6 +26,13 @@ int indice(int coord, int size){
 
 bool foodContact(SDL_Rect* head, SDL_Rect* food){
   if ( indice(food->x, SNAKE_WIDTH) == indice(head->x, SNAKE_WIDTH) && indice(food->y, SNAKE_HEIGHT) == indice(head->y, SNAKE_HEIGHT) ){
+        return true;
+  }
+  return false;
+}
+
+bool bonusFoodContact(SDL_Rect* head, SDL_Rect* bonusFood){
+  if ( indice(bonusFood->x, SNAKE_WIDTH) == indice(head->x, SNAKE_WIDTH) && indice(bonusFood->y, SNAKE_HEIGHT) == indice(head->y, SNAKE_HEIGHT) ){
         return true;
   }
   return false;
@@ -78,6 +82,16 @@ SDL_Rect randFood(queue* body, queue* mazeq){
     return randFood(body, mazeq);
   }
   SDL_Rect r = {randx * SNAKE_WIDTH + 8, randy * SNAKE_HEIGHT + TOP_BAR + 8, 9, 9};
+  return r;
+}
+
+SDL_Rect randBonusFood(queue* body, queue* mazeq, SDL_Rect* food){
+  int randx = rand()%(NBX);
+  int randy = rand()%(NBY);
+  if (!validFood(body, mazeq, randx, randy) || (indice(food->x, SNAKE_WIDTH) == randx && indice(food->y, SNAKE_HEIGHT) == randy)){
+    return randBonusFood(body, mazeq, food);
+  }
+  SDL_Rect r = {randx * SNAKE_WIDTH, randy * SNAKE_HEIGHT + TOP_BAR, SNAKE_WIDTH, SNAKE_HEIGHT};
   return r;
 }
 
@@ -205,13 +219,6 @@ SDL_Rect smoothTail(snake* head, queue *body, SDL_Rect* smoothFront, int score){
   return smooth;
 }
 
-void timeout(int milliseconds){
-    int milliseconds_since = clock() * 1000 / CLOCKS_PER_SEC;
-    int end = milliseconds_since + milliseconds;
-    do {
-        milliseconds_since = clock() * 1000 / CLOCKS_PER_SEC;
-    } while (milliseconds_since <= end);
-}
 
 int abs(int a){
   if (a < 0) return -a;

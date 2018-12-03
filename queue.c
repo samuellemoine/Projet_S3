@@ -90,23 +90,3 @@ bool tailInNode(queue* body, snake* head){
   if (dir.dx == 0) return (r0.y != r1.y && r1.y == r2.y);
   return (r0.x != r1.x && r1.x == r2.x);
 }
-
-bool inNode(Element* e){
-  Element* element = e;
-  if (element == NULL || element->nextPos == NULL) return false;
-  SDL_Rect r0; r0.x = element->pos.snakeRect.x; r0.y = element->pos.snakeRect.y;
-  SDL_Rect r1; r1.x = element->nextPos->pos.snakeRect.x; r1.y = element->nextPos->pos.snakeRect.y;
-
-  if (element->pos.dir.dx == 0) return (r0.y == r1.y && r0.x != r1.x);
-  return (r0.x == r1.x && r0.y != r1.y);
-}
-
-int queueSize(queue* body){
-  int size = 0;
-  Element* element = body->head;
-  while (element != NULL){
-    size += 1;
-    element = element->nextPos;
-  }
-  return size;
-}

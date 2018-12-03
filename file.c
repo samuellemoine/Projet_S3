@@ -123,18 +123,12 @@ int intLog(int n, int base){
 }
 
 char* formattedScore(int score, bool type){
-  char* res = malloc(12 * sizeof(char));
-  if (type){
-    sprintf(res, "Score: ");
-  }
-  else{
-    sprintf(res, "High: ");
-  }
+  char* res = malloc(13 * sizeof(char));
+  if (type) sprintf(res, "Score: ");
+  else sprintf(res, "High: ");
   int size = intLog(score, 10);
   int a;
-  for (a = 0; a < 4 - size; a++){
-    strcat(res, "0");
-  }
+  for (a = 0; a < 5 - size; a++) strcat(res, "0");
   char* tmp = malloc(size * sizeof(char));
   sprintf(tmp, "%d", score);
   strcat(res, tmp);
