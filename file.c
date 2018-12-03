@@ -50,6 +50,10 @@ void readMazeFile(char* path, queue* mazeq, SDL_Rect** grid, char** lines){
         line++;
         col = 0;
       }
+      else{
+         printf("The input file contains illegal characters ! \nExiting the program ...");
+         exit(EXIT_FAILURE);
+      }
     }
   }
   fclose(mazeFile);

@@ -60,6 +60,21 @@ void reset(bool* started, bool* pause, bool* gameover, bool* dirChanged, int* sc
 
 void handleMenu(queue* mazeq, bool* started, SDL_Rect* food, SDL_Event* event, SDL_Renderer* screen, SDL_Texture* menuTexture, int* choice, int* level, int* maze, SDL_Rect** grid){
   char** lines = allocate_Char2D(NBY, NBX);
+  int x, y, sizey;
+  SDL_GetMouseState(&x, &y);
+  sizey = 17 * SCREEN_HEIGHT / 125;
+  if ( x >= 4 * SCREEN_WIDTH / 25 && x <= 12 * SCREEN_WIDTH / 25 ){
+    if ((y - 6 * SCREEN_HEIGHT / 25)/ sizey >= 0 && (y - 6 * SCREEN_HEIGHT / 25) / sizey < 5){
+      *maze = (y - 6 * SCREEN_HEIGHT / 25) / sizey;
+      *choice = true;
+    }
+  }
+  if ( x >= 13 * SCREEN_WIDTH / 25 && x <= 21 * SCREEN_WIDTH / 25 ){
+    if ((y - 6 * SCREEN_HEIGHT / 25) / sizey >= 0 && (y - 6 * SCREEN_HEIGHT / 25) / sizey < 5){
+      *level = (y - 6 * SCREEN_HEIGHT / 25) / sizey;
+      *choice = false;
+    }
+  }
   if(event->type == SDL_KEYDOWN){
     switch (event->key.keysym.sym){
       case SDLK_LEFT:
