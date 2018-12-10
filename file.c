@@ -120,11 +120,16 @@ void readScoreFile(char* path, int* allScores){
     printf("Done.\n");
     file = fopen(path, "r");
   }
+
   int i = 0;
-  int cpt = 0;
+  int line = 0;
   while ( (fscanf (file, "%d", &i)) != EOF ){
-    allScores[cpt] = i;
-    cpt += 1;
+    if (line == 5){
+      printf("The input file %s has too many inputs or contains illegal characters at line %d ! \nExiting the program ...\n", path, line + 1);
+      exit(EXIT_FAILURE);
+    }
+    allScores[line] = i;
+    line += 1;
   }
   fclose(file);
 }

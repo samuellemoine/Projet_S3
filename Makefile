@@ -5,13 +5,13 @@ LDFLAGS = `sdl2-config --cflags --libs` -lSDL2_ttf
 all: game
 game: main.o core.o snake.o queue.o file.o tab.o pixels.o headers.h
 	$(CC) $(CFLAGS) main.o core.o snake.o queue.o file.o tab.o pixels.o $(LDFLAGS) -o game
-main.o: main.c headers.h
+main.o: main.c
 	$(CC) $(CFLAGS) -c main.c
-core.o: core.c headers.h
+core.o: core.c
 		$(CC) $(CFLAGS) -c core.c
-snake.o: snake.c headers.h
+snake.o: snake.c
 	$(CC) $(CFLAGS) -c snake.c
-queue.o: queue.c headers.h
+queue.o: queue.c
 	$(CC) $(CFLAGS) -c queue.c
 file.o: file.c
 	$(CC) $(CFLAGS) -c file.c
