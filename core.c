@@ -39,6 +39,7 @@ int init(SDL_Window* w, SDL_Renderer** r, TTF_Font** f, const Uint8** keystate, 
 }
 
 void reset(bool* started, bool* pause, bool* gameover, bool* dirChanged, int* score, snake* head, queue* body, queue* mazeq, SDL_Rect* food, SDL_Rect* bonusFood, SDL_Rect** grid){
+    SDL_ShowCursor(SDL_ENABLE);
     *started = false;
     *pause = true;
     *gameover = false;
@@ -58,71 +59,71 @@ void reset(bool* started, bool* pause, bool* gameover, bool* dirChanged, int* sc
     setRect(bonusFood, -1, -1, 0, 0);
 }
 
-void handleMenu(queue* mazeq, bool* started, SDL_Rect* food, SDL_Event* event, SDL_Renderer* screen, SDL_Texture* menuTexture, int* choice, int* level, int* maze, SDL_Rect** grid){
-  char** lines = allocate_Char2D(NBY, NBX);
+void handleMenu(queue* mazeq, bool* started, SDL_Rect* food, SDL_Event* event, SDL_Renderer* screen, SDL_Texture* menuTexture, int* choice, int* level, int* maze, bool* keyPressed, SDL_Rect** grid){
   int x, y, sizey;
-  SDL_GetMouseState(&x, &y);
-  sizey = 17 * SCREEN_HEIGHT / 125;
-  if ( x >= 4 * SCREEN_WIDTH / 25 && x <= 12 * SCREEN_WIDTH / 25 ){
-    if ((y - 6 * SCREEN_HEIGHT / 25)/ sizey >= 0 && (y - 6 * SCREEN_HEIGHT / 25) / sizey < 5){
-      *maze = (y - 6 * SCREEN_HEIGHT / 25) / sizey;
-      *choice = true;
+  if (!*keyPressed){
+    SDL_GetMouseState(&x, &y);
+    sizey = 17 * SCREEN_HEIGHT / 125;
+    if ( x >= 4 * SCREEN_WIDTH / 25 && x <= 12 * SCREEN_WIDTH / 25 ){
+      if ((y - 6 * SCREEN_HEIGHT / 25)/ sizey >= 0 && (y - 6 * SCREEN_HEIGHT / 25) / sizey < 5){
+        *maze = (y - 6 * SCREEN_HEIGHT / 25) / sizey;
+        *choice = true;
+      }
+    }
+    else if ( x >= 13 * SCREEN_WIDTH / 25 && x <= 21 * SCREEN_WIDTH / 25 ){
+      if ((y - 6 * SCREEN_HEIGHT / 25) / sizey >= 0 && (y - 6 * SCREEN_HEIGHT / 25) / sizey < 5){
+        *level = (y - 6 * SCREEN_HEIGHT / 25) / sizey;
+        *choice = false;
+      }
     }
   }
-  if ( x >= 13 * SCREEN_WIDTH / 25 && x <= 21 * SCREEN_WIDTH / 25 ){
-    if ((y - 6 * SCREEN_HEIGHT / 25) / sizey >= 0 && (y - 6 * SCREEN_HEIGHT / 25) / sizey < 5){
-      *level = (y - 6 * SCREEN_HEIGHT / 25) / sizey;
-      *choice = false;
-    }
-  }
-  if(event->type == SDL_KEYDOWN){
-    switch (event->key.keysym.sym){
-      case SDLK_LEFT:
-        *choice = !*choice;
-      break;
-      case SDLK_RIGHT:
-        *choice = !*choice;
-      break;
-      case SDLK_UP:
-        if (*choice){
-          if (*maze > 0)  *maze -= 1;
-          else  *maze = 4;
-        }
-        else{
-          if (*level > 0)  *level -= 1;
-          else  *level = 4;
-        }
+
+  char** lines = allocate_Char2D(NBY, NBX);
+  switch (event->type){
+    case SDL_MOUSEBUTTONDOWN:
+      loadMaze(maze, mazeq, grid, lines, food, started);
+      SDL_ShowCursor(SDL_DISABLE);
+    break;
+    case SDL_MOUSEMOTION:
+      *keyPressed = false;
+      SDL_ShowCursor(SDL_ENABLE);
+    break;
+    case SDL_KEYDOWN:
+    *keyPressed = true;
+    SDL_ShowCursor(SDL_DISABLE);
+      switch (event->key.keysym.sym){
+        case SDLK_LEFT:
+          *choice = !*choice;
         break;
-      case SDLK_DOWN:
-        if (*choice){
-          if (*maze < 4)  *maze += 1;
-          else  *maze = 0;
-        }
-        else{
-          if (*level < 4)  *level += 1;
-          else  *level = 0;
-        }
-      break;
-      case SDLK_RETURN:
-        *started = true;
-        switch (*maze){
-          case 1:
-            readMazeFile("mazeWalls.txt", mazeq, grid, lines);
-          break;
-	        case 2:
-            randMaze(NBY/2 + rand()%(NBX/4), mazeq, grid, lines, "lastRandom.txt");
-	        break;
-          case 3:
-            randMaze(NBY + rand()%NBX/3, mazeq, grid, lines, "lastHardRandom.txt");
-          break;
-          case 4:
-            readMazeFile("mazeWalls.txt", mazeq, grid, lines);
-            randMaze(NBY/3 + rand()%(NBX/3), mazeq, grid, lines, "lastWallsRandom.txt");
-          break;
-        }
-        *food = randFood(NULL, mazeq);   /* food position randomizer needs to be called after the maze map has been loaded */
-      break;
-    }
+        case SDLK_RIGHT:
+          *choice = !*choice;
+        break;
+        case SDLK_UP:
+          if (*choice){
+            if (*maze > 0)  *maze -= 1;
+            else  *maze = 4;
+          }
+          else{
+            if (*level > 0)  *level -= 1;
+            else  *level = 4;
+          }
+        break;
+        case SDLK_DOWN:
+          if (*choice){
+            if (*maze < 4)  *maze += 1;
+            else  *maze = 0;
+          }
+          else{
+            if (*level < 4)  *level += 1;
+            else  *level = 0;
+          }
+        break;
+        case SDLK_RETURN:
+          loadMaze(maze, mazeq, grid, lines, food, started);
+          SDL_ShowCursor(SDL_DISABLE);
+        break;
+      }
+    break;
   }
   drawMenu(screen, menuTexture, *choice, *level, *maze);
   free_Char2D(lines, NBY);

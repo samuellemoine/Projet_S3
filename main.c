@@ -25,6 +25,8 @@ int main(void){
   int choice = 1;           /* switch between maze and speed selection in menu */
   int level = 0;            /* level in menu */
   int mazeSelector = 0;     /* mode in menu */
+  bool keyPressed = false;  /* handle the cursor and keys in menu */
+
   int score;
   bool playing = true;      /* controls main loop */
   bool started;             /* controls the menu at start */
@@ -73,7 +75,7 @@ int main(void){
         }
       }
       if (!started){      /* menu selector */
-        handleMenu(mazeq, &started, &food, &event, screen, menuTexture, &choice, &level, &mazeSelector, grid);
+        handleMenu(mazeq, &started, &food, &event, screen, menuTexture, &choice, &level, &mazeSelector, &keyPressed, grid);
       }
       /* quit the game */
       if (event.type == SDL_QUIT || keyboardState[SDL_SCANCODE_ESCAPE]){

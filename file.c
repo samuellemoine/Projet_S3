@@ -1,5 +1,25 @@
 #include "headers.h"
 
+void loadMaze(int* maze, queue* mazeq, SDL_Rect** grid, char** lines, SDL_Rect* food, bool* started){
+  *started = true;
+  switch (*maze){
+    case 1:
+      readMazeFile("mazeWalls.txt", mazeq, grid, lines);
+    break;
+    case 2:
+      randMaze(NBY/2 + rand()%(NBX/4), mazeq, grid, lines, "lastRandom.txt");
+    break;
+    case 3:
+      randMaze(NBY + rand()%NBX/3, mazeq, grid, lines, "lastHardRandom.txt");
+    break;
+    case 4:
+      readMazeFile("mazeWalls.txt", mazeq, grid, lines);
+      randMaze(NBY/3 + rand()%(NBX/3), mazeq, grid, lines, "lastWallsRandom.txt");
+    break;
+  }
+  *food = randFood(NULL, mazeq);   /* food position randomizer needs to be called after the maze map has been loaded */
+}
+
 SDL_Texture* loadTTFTexture(SDL_Renderer* screen, TTF_Font* font, SDL_Color* color, char* word){
   SDL_Surface* surf = TTF_RenderText_Solid(font, word, *color);
   SDL_Texture* text = SDL_CreateTextureFromSurface(screen, surf);
@@ -42,6 +62,10 @@ void readMazeFile(char* path, queue* mazeq, SDL_Rect** grid, char** lines){
     int c;
     int line = 0; int col = 0;
     while ( (c = fgetc (mazeFile)) != EOF ){
+      if (line > NBY || col > NBX) {
+        printf("The input file %s has too many inputs at line %d : %d ! \nExiting the program ...\n", path, line + 1, col + 1);
+        exit(EXIT_FAILURE);
+      }
       if (c >= '0' && c <= '1'){
         lines[line][col] = c;
         col++;
@@ -51,7 +75,7 @@ void readMazeFile(char* path, queue* mazeq, SDL_Rect** grid, char** lines){
         col = 0;
       }
       else{
-         printf("The input file contains illegal characters ! \nExiting the program ...");
+         printf("The input file %s contains illegal characters ! \nExiting the program ...\n", path);
          exit(EXIT_FAILURE);
       }
     }

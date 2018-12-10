@@ -65,7 +65,7 @@ typedef struct FadeColor fadeColor;
 /* function and method profiles for core.c */
 int init(SDL_Window *, SDL_Renderer **, TTF_Font **, const Uint8 **, SDL_Rect **);
 void reset(bool *, bool *, bool *, bool *, int *, snake *, queue *, queue *, SDL_Rect *, SDL_Rect *, SDL_Rect **);
-void handleMenu(queue *, bool *, SDL_Rect*, SDL_Event *, SDL_Renderer *, SDL_Texture *, int *, int *, int *, SDL_Rect **);
+void handleMenu(queue *, bool *, SDL_Rect*, SDL_Event *, SDL_Renderer *, SDL_Texture *, int *, int *, int *, bool *, SDL_Rect **);
 void drawMenu(SDL_Renderer *, SDL_Texture *, int, int, int);
 void handleKeys(const Uint8 *, snake *, dir *, bool *, bool *);
 void move(snake *, SDL_Rect **, queue *, queue *, SDL_Rect *, SDL_Rect *, bool *, bool *, int, int *, int *, unsigned long *);
@@ -101,6 +101,7 @@ bool tailInNode(queue *, snake *);
 
 
 /* function and method profiles for file.c */
+void loadMaze(int* maze, queue* mazeq, SDL_Rect** grid, char** lines, SDL_Rect* food, bool* started);
 SDL_Texture* loadTTFTexture(SDL_Renderer *, TTF_Font *, SDL_Color *, char *);
 SDL_Texture* loadBMPSurface(SDL_Renderer *, char *);
 void readMazeFile(char *, queue *, SDL_Rect **, char **);
