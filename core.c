@@ -239,9 +239,7 @@ void drawScreen(queue* body, queue* mazeq, snake* head, SDL_Renderer* screen, SD
   int* allScores = malloc(5 * sizeof(int));
   readScoreFile("highScores.txt", allScores);
   int highScore = allScores[mazeSelector];
-  if (score > highScore){
-    writeScoreFile("highScores.txt", allScores, mazeSelector, score);
-  }
+  if (score > highScore) writeScoreFile("highScores.txt", allScores, mazeSelector, score);
   free(allScores);
   char* highScoreChar = formattedScore(highScore, true);
   char* scoreChar = formattedScore(score, false);
