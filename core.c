@@ -210,7 +210,7 @@ void move(snake* head, SDL_Rect** grid, queue* body, queue* mazeq, SDL_Rect* foo
       queueIn(body, &grid[yy][xx], &head->dir);
       *score += level + 1;
       *food = randFood(body, mazeq);
-      if (bonusFood->w == 0 && rand()%12 == 0){
+      if (bonusFood->w == 0 && rand()%BONUS_FOOD == 0){
         *bonusFood = randBonusFood(body, mazeq, food);
         *lastBonus = clock() * 1000 / CLOCKS_PER_SEC + (unsigned long) ADJUST_BONUS * 1000 - (unsigned long) level*1000;
       }
