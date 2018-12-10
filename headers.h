@@ -16,7 +16,7 @@
 #define TOP_BAR           SNAKE_WIDTH * 3
 #define ADJUST_LEVEL      8
 #define ADJUST_BONUS      8
-#define BONUS_FOOD        9    /* probability to get a special food */
+#define BONUS_FOOD        1    /* probability to get a special food */
 #define VELOCITY          1
 
 typedef struct Axe axe;
@@ -38,6 +38,7 @@ struct Dir {
   axe up;
   axe down;
 };
+
 typedef struct Element Element;
 struct Element {
     snake pos;
@@ -49,19 +50,18 @@ struct Queue {
     Element* head;
 };
 
-
-
 typedef struct Coord coord;
 struct Coord {
   int x;
   int y;
 };
 
+typedef struct FadeColor fadeColor;
 struct FadeColor{
   double rgb;
   double variation;
 };
-typedef struct FadeColor fadeColor;
+
 /* function and method profiles for core.c */
 int init(SDL_Window *, SDL_Renderer **, TTF_Font **, const Uint8 **, SDL_Rect **);
 void reset(bool *, bool *, bool *, bool *, int *, snake *, queue *, queue *, SDL_Rect *, SDL_Rect *, SDL_Rect **);
@@ -121,6 +121,8 @@ void free_Char2D(char **, int);
 int** allocate_Int2D(int, int);
 void free_Int2D(int **, int);
 
+/* function and method profiles for pixels.c */
+int power(int, int);
 void setPixel(SDL_Surface *, Uint8, Uint8, Uint8, Uint8, int, int, int);
 void drawCircle(SDL_Surface *, Uint8, Uint8, Uint8, Uint8, int, int, int, int, int);
 SDL_Texture* circleTexture(SDL_Renderer *, Uint8, Uint8, Uint8, Uint8, int, int, int, int, int);
