@@ -62,7 +62,7 @@ void readMazeFile(char* path, queue* mazeq, SDL_Rect** grid, char** lines){
     int c;
     int line = 0; int col = 0;
     while ( (c = fgetc (mazeFile)) != EOF ){
-      if (line > NBY || col > NBX) {
+      if (line > NBY - 1 || col > NBX) {
         printf("The input file %s has too many inputs at line %d : %d ! \nExiting the program ...\n", path, line + 1, col + 1);
         exit(EXIT_FAILURE);
       }
