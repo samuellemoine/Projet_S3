@@ -16,7 +16,7 @@
 #define TOP_BAR           SNAKE_WIDTH * 3
 #define ADJUST_LEVEL      8
 #define ADJUST_BONUS      8
-#define BONUS_FOOD        1    /* probability to get a special food */
+#define BONUS_FOOD        11    /* probability to get a special food */
 #define VELOCITY          1
 
 typedef struct Axe axe;
