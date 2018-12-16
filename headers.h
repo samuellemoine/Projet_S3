@@ -14,10 +14,11 @@
 #define NBX               SCREEN_WIDTH / SNAKE_WIDTH
 #define NBY               SCREEN_HEIGHT / SNAKE_HEIGHT
 #define TOP_BAR           SNAKE_WIDTH * 3
-#define ADJUST_LEVEL      8
-#define ADJUST_BONUS      8
-#define BONUS_FOOD        11    /* probability to get a special food */
-#define VELOCITY          1
+#define ADJUST_LEVEL      10
+#define ADJUST_SPECIAL    10
+#define BONUS_FOOD        11
+#define MALUS_FOOD        18
+#define VELOCITY          2
 
 typedef struct Axe axe;
 struct Axe {
@@ -64,12 +65,12 @@ struct FadeColor{
 
 /* function and method profiles for core.c */
 int init(SDL_Window *, SDL_Renderer **, TTF_Font **, const Uint8 **, SDL_Rect **);
-void reset(bool *, bool *, bool *, bool *, int *, snake *, queue *, queue *, SDL_Rect *, SDL_Rect *, SDL_Rect **);
+void reset(bool *, bool *, bool *, bool *, int *, snake *, queue *, queue *, SDL_Rect *, SDL_Rect *, SDL_Rect *, SDL_Rect **);
 void handleMenu(queue *, bool *, SDL_Rect*, SDL_Event *, SDL_Renderer *, SDL_Texture *, TTF_Font *, fadeColor *, int *, int *, int *, bool *, SDL_Rect **);
 void drawMenu(SDL_Renderer *, SDL_Texture *, TTF_Font *, fadeColor *, int, int, int);
 void handleKeys(const Uint8 *, snake *, dir *, bool *, bool *);
-void move(snake *, SDL_Rect **, queue *, queue *, SDL_Rect *, SDL_Rect *, bool *, bool *, int, int *, int *, unsigned long *);
-void drawScreen(queue *, queue *, snake *, SDL_Renderer *, SDL_Texture *,  SDL_Rect *, SDL_Rect *, int, int, bool, bool, bool, fadeColor*, TTF_Font*, SDL_Rect**, bool *, SDL_Rect *, int *);
+void move(snake *, SDL_Rect **, queue *, queue *, SDL_Rect *, SDL_Rect *, SDL_Rect *, bool *, bool *, int, int *, int *, unsigned long *);
+void drawScreen(queue *, queue *, snake *, SDL_Renderer *, SDL_Texture *,  SDL_Rect *, SDL_Rect *, SDL_Rect *, int, int, bool, bool, bool, fadeColor*, TTF_Font*, SDL_Rect**, bool *, SDL_Rect *, int *);
 void clean(SDL_Renderer *, SDL_Texture *, SDL_Window *, SDL_Rect **, queue *, queue *, TTF_Font *, fadeColor *);
 
 /* function and method profiles for snake.c */
@@ -78,11 +79,11 @@ void setRect(SDL_Rect *, int, int, int, int);
 void setDir(axe *, axe *);
 int indice(int, int);
 bool foodContact(SDL_Rect *, SDL_Rect *);
-bool bonusFoodContact(SDL_Rect *, SDL_Rect *);
+bool specialFoodContact(SDL_Rect *, SDL_Rect *);
 bool snakeContact(queue *);
 bool mazeContact(snake *, queue *);
 SDL_Rect randFood(queue *, queue *);
-SDL_Rect randBonusFood(queue *, queue *, SDL_Rect *);
+SDL_Rect randSpecialFood(queue *, queue *, SDL_Rect *);
 bool validFood(queue *, queue *, int, int);
 void randMaze(int, queue *, SDL_Rect **, char **, char *);
 bool validMaze(int, int);
@@ -96,6 +97,7 @@ void queueIn(queue *, SDL_Rect *, axe *);
 void queueOut(queue *);
 SDL_Rect queueBack(queue *);
 SDL_Rect queueFront(queue *);
+int queueSize(queue *);
 axe tailDir(queue *);
 bool tailInNode(queue *, snake *);
 

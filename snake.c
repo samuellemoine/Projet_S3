@@ -31,7 +31,7 @@ bool foodContact(SDL_Rect* head, SDL_Rect* food){
   return false;
 }
 
-bool bonusFoodContact(SDL_Rect* head, SDL_Rect* bonusFood){
+bool specialFoodContact(SDL_Rect* head, SDL_Rect* bonusFood){
   if ( indice(bonusFood->x, SNAKE_WIDTH) == indice(head->x, SNAKE_WIDTH) && indice(bonusFood->y, SNAKE_HEIGHT) == indice(head->y, SNAKE_HEIGHT) ){
         return true;
   }
@@ -85,11 +85,11 @@ SDL_Rect randFood(queue* body, queue* mazeq){
   return r;
 }
 
-SDL_Rect randBonusFood(queue* body, queue* mazeq, SDL_Rect* food){
+SDL_Rect randSpecialFood(queue* body, queue* mazeq, SDL_Rect* food){
   int randx = rand()%(NBX);
   int randy = rand()%(NBY);
   if (!validFood(body, mazeq, randx, randy) || (indice(food->x, SNAKE_WIDTH) == randx && indice(food->y, SNAKE_HEIGHT) == randy)){
-    return randBonusFood(body, mazeq, food);
+    return randSpecialFood(body, mazeq, food);
   }
   SDL_Rect r = {randx * SNAKE_WIDTH, randy * SNAKE_HEIGHT + TOP_BAR, SNAKE_WIDTH, SNAKE_HEIGHT};
   return r;

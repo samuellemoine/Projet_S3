@@ -58,6 +58,19 @@ SDL_Rect queueFront(queue* body){
   return body->head->pos.snakeRect;
 }
 
+int queueSize(queue* body){
+  if (body == NULL){
+    exit(EXIT_FAILURE);
+  }
+  int size = 0;
+  Element* element = body->head;
+  while (element != NULL) {
+    element = element->nextPos;
+    size += 1;
+  }
+  return size;
+}
+
 axe tailDir(queue* body){
   if (body == NULL){
     exit(EXIT_FAILURE);

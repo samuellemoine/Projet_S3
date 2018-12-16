@@ -18,6 +18,7 @@ int main(void){
   snake head;               /* head.dir and head.snakeRect initiate the movement */
   SDL_Rect food;            /* contains the food coordinates */
   SDL_Rect bonusFood;
+  SDL_Rect malusFood;
   queue* body = initialize();    /* queue of SDL_Rect contains grid coordinates making the body follow the head */
   queueIn(body, &head.snakeRect, NULL);
   queue* mazeq = initialize();   /* queue of SDL_Rect for grid coordinates of the maze */
@@ -33,7 +34,7 @@ int main(void){
   bool pause;               /* pauses the game */
   bool gameover;            /* stops the snake from moving on on collision */
   bool dirChanged;          /* prevents the player from doing a complete turn back with the snake */
-  reset(&started, &pause, &gameover, &dirChanged, &score, &head, body, mazeq, &food, &bonusFood, grid); /* set the initial variables */
+  reset(&started, &pause, &gameover, &dirChanged, &score, &head, body, mazeq, &food, &bonusFood, &malusFood, grid); /* set the initial variables */
 
   SDL_Texture* gameTexture = loadBMPSurface(screen, "surf.bmp");
   SDL_Texture* menuTexture = loadBMPSurface(screen, "menu.bmp");
@@ -60,20 +61,19 @@ int main(void){
     milliseconds = clock() * 1000 / CLOCKS_PER_SEC;
 
     if (started){
-      if (frameNb == frames - 1) drawScreen(body, mazeq, &head, screen, gameTexture, &food, &bonusFood, mazeSelector, score, pause, gameover, head.dir.dx == 0 && head.dir.dy == 0, color, font, grid, &smoothTailFrame, &lastTail, &bonusSize);
+      if (frameNb == frames - 1) drawScreen(body, mazeq, &head, screen, gameTexture, &food, &bonusFood, &malusFood, mazeSelector, score, pause, gameover, head.dir.dx == 0 && head.dir.dy == 0, color, font, grid, &smoothTailFrame, &lastTail, &bonusSize);
       if (!gameover){
         handleKeys(keyboardState, &head, &direction, &pause, &dirChanged);
         if (!pause){
-          move(&head, grid, body, mazeq, &food, &bonusFood, &gameover, &dirChanged, level, &score, &bonusSize, &lastBonus);
+          move(&head, grid, body, mazeq, &food, &bonusFood, &malusFood, &gameover, &dirChanged, level, &score, &bonusSize, &lastBonus);
         }
       }
     }
     while (SDL_PollEvent(&event)){
-      if (gameover){      /* reset to initial variables when game is over */
-        if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_RETURN){
-          reset(&started, &pause, &gameover, &dirChanged, &score, &head, body, mazeq, &food, &bonusFood, grid);
+      /* reset to initial variables when game is over */
+        if (gameover && ((event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_RETURN) || event.type == SDL_MOUSEBUTTONUP)){
+          reset(&started, &pause, &gameover, &dirChanged, &score, &head, body, mazeq, &food, &bonusFood, &malusFood, grid);
         }
-      }
       if (!started){      /* menu selector */
         handleMenu(mazeq, &started, &food, &event, screen, menuTexture, font, color, &choice, &level, &mazeSelector, &keyPressed, grid);
       }

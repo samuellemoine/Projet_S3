@@ -38,7 +38,7 @@ int init(SDL_Window* w, SDL_Renderer** r, TTF_Font** f, const Uint8** keystate, 
   return EXIT_SUCCESS;
 }
 
-void reset(bool* started, bool* pause, bool* gameover, bool* dirChanged, int* score, snake* head, queue* body, queue* mazeq, SDL_Rect* food, SDL_Rect* bonusFood, SDL_Rect** grid){
+void reset(bool* started, bool* pause, bool* gameover, bool* dirChanged, int* score, snake* head, queue* body, queue* mazeq, SDL_Rect* food, SDL_Rect* bonusFood, SDL_Rect* malusFood, SDL_Rect** grid){
     SDL_ShowCursor(SDL_ENABLE);
     *started = false;
     *pause = true;
@@ -57,6 +57,7 @@ void reset(bool* started, bool* pause, bool* gameover, bool* dirChanged, int* sc
     queueIn(body, &head->snakeRect, &head->dir);
     *food = randFood(body, mazeq);
     setRect(bonusFood, -1, -1, 0, 0);
+    setRect(malusFood, -1, -1, 0, 0);
 }
 
 void handleMenu(queue* mazeq, bool* started, SDL_Rect* food, SDL_Event* event, SDL_Renderer* screen, SDL_Texture* menuTexture, TTF_Font* font, fadeColor* col, int* choice, int* level, int* maze, bool* keyPressed, SDL_Rect** grid){
@@ -137,7 +138,7 @@ void drawMenu(SDL_Renderer* screen, SDL_Texture* menuTexture, TTF_Font* font, fa
   SDL_Rect rightRect = (SDL_Rect) { 13 * SCREEN_WIDTH / 25, 6 * SCREEN_HEIGHT / 25, 8 * SCREEN_WIDTH / 25, 17 * SCREEN_HEIGHT / 25 };
   SDL_Rect mazeSprite = (SDL_Rect) { (maze * 2 + choice) * 240, 510, 240, 510 };
   SDL_Rect levelSprite = (SDL_Rect) { (level * 2 + choice) * 240, 0, 240, 510 };
-  SDL_Rect fontRect = (SDL_Rect) { 4 *SCREEN_WIDTH / 25, SCREEN_HEIGHT / 25, 18 * SCREEN_WIDTH / 25, 5 * SCREEN_HEIGHT / 25 }
+  SDL_Rect fontRect = (SDL_Rect) { 4 *SCREEN_WIDTH / 25, SCREEN_HEIGHT / 25, 18 * SCREEN_WIDTH / 25, 5 * SCREEN_HEIGHT / 25 };
 
   SDL_RenderClear(screen);
   SDL_RenderCopy(screen, menuTexture, &mazeSprite, &leftRect);
@@ -173,11 +174,12 @@ void handleKeys(const Uint8* keyboardState, snake* head, dir* direction, bool* p
   }
 }
 
-void move(snake* head, SDL_Rect** grid, queue* body, queue* mazeq, SDL_Rect* food, SDL_Rect* bonusFood, bool* gameover, bool* dirChanged, int level, int* score, int* bonusSize, unsigned long* lastBonus){
+void move(snake* head, SDL_Rect** grid, queue* body, queue* mazeq, SDL_Rect* food, SDL_Rect* bonusFood, SDL_Rect* malusFood, bool* gameover, bool* dirChanged, int level, int* score, int* bonusSize, unsigned long* lastBonus){
   bool headMoved, isInLimits;
   int tmpPosX, tmpPosY;
   int xx = -1; int yy = -1;
   SDL_Rect currentHead = queueBack(body);  /* SDL_Rect of the snake's head */
+  int i;
 
   /* update temporary positons */
   tmpPosX = head->snakeRect.x;
@@ -205,10 +207,13 @@ void move(snake* head, SDL_Rect** grid, queue* body, queue* mazeq, SDL_Rect* foo
   /* setting the three necessary booleans to move the snake */
   headMoved = (indice(currentHead.x, SNAKE_WIDTH) != xx) || (indice(currentHead.y - TOP_BAR, SNAKE_HEIGHT) != yy);
   isInLimits = xx >= 0 && xx < NBX && yy >= 0 && yy < NBY;
-  unsigned long bonusTime = ((unsigned long) ADJUST_BONUS * 1000 - (unsigned long) level*1000) / SNAKE_WIDTH * 2;
+  unsigned long bonusTime = ((unsigned long) ADJUST_SPECIAL * 1000 - (unsigned long) level*1000) / SNAKE_WIDTH * 2;
   *bonusSize = (*lastBonus - clock() * 1000 / CLOCKS_PER_SEC) / bonusTime;
   if (bonusFood->w != 0 && *bonusSize == 4){
     setRect(bonusFood, -1, -1, 0, 0);
+  }
+  if (malusFood->w != 0 && *bonusSize == 4){
+    setRect(malusFood, -1, -1, 0, 0);
   }
   if (isInLimits && headMoved){
     *dirChanged = false;
@@ -217,11 +222,21 @@ void move(snake* head, SDL_Rect** grid, queue* body, queue* mazeq, SDL_Rect* foo
       *score += level + 1;
       *food = randFood(body, mazeq);
       if (bonusFood->w == 0 && rand()%BONUS_FOOD == 0){
-        *bonusFood = randBonusFood(body, mazeq, food);
-        *lastBonus = clock() * 1000 / CLOCKS_PER_SEC + (unsigned long) ADJUST_BONUS * 1000 - (unsigned long) level*1000;
+        *bonusFood = randSpecialFood(body, mazeq, food);
+        *lastBonus = clock() * 1000 / CLOCKS_PER_SEC + (unsigned long) ADJUST_SPECIAL * 1000 - (unsigned long) level*1000;
+      }
+      else if (malusFood->w == 0 && rand()%MALUS_FOOD == 0){
+        *malusFood = randSpecialFood(body, mazeq, food);
+        *lastBonus = clock() * 1000 / CLOCKS_PER_SEC + (unsigned long) ADJUST_SPECIAL * 1000 - (unsigned long) level*1000;
       }
     }
-    else if(bonusFoodContact(&head->snakeRect, bonusFood)){
+    else if(specialFoodContact(&head->snakeRect, malusFood)){
+      queueIn(body, malusFood, &head->dir);
+      setRect(malusFood, -1, -1, 0, 0);
+      *score += level + 1;
+      for (i = 0; i < (int)((double)queueSize(body) / 20 * (double)(level + 1) ) * (double)(*lastBonus / 1000 - clock() / CLOCKS_PER_SEC); i++ ) queueOut(body);
+    }
+    else if(specialFoodContact(&head->snakeRect, bonusFood)){
       queueIn(body, bonusFood, &head->dir);
       setRect(bonusFood, -1, -1, 0, 0);
       *score += (int) ((double)*score / 20 * (double)(level + 1) ) * (*lastBonus / 1000 - clock() / CLOCKS_PER_SEC);
@@ -234,7 +249,7 @@ void move(snake* head, SDL_Rect** grid, queue* body, queue* mazeq, SDL_Rect* foo
 
 }
 
-void drawScreen(queue* body, queue* mazeq, snake* head, SDL_Renderer* screen, SDL_Texture* gameTexture, SDL_Rect* food, SDL_Rect* bonusFood, int mazeSelector, int score, bool pause, bool gameover, bool firstRound, fadeColor* col, TTF_Font* font, SDL_Rect** grid, bool* smoothTailFrame, SDL_Rect* lastTail, int* bonusSize){
+void drawScreen(queue* body, queue* mazeq, snake* head, SDL_Renderer* screen, SDL_Texture* gameTexture, SDL_Rect* food, SDL_Rect* bonusFood, SDL_Rect* malusFood, int mazeSelector, int score, bool pause, bool gameover, bool firstRound, fadeColor* col, TTF_Font* font, SDL_Rect** grid, bool* smoothTailFrame, SDL_Rect* lastTail, int* bonusSize){
   if (body == NULL){
       exit(EXIT_FAILURE);
   }
@@ -268,9 +283,18 @@ void drawScreen(queue* body, queue* mazeq, snake* head, SDL_Renderer* screen, SD
   SDL_RenderClear(screen);
   SDL_SetRenderDrawColor(screen, 50, 200 - col[0].rgb, 150 - col[0].rgb, 255);
   SDL_RenderFillRect(screen, food);
-  SDL_Texture* bonusFoodTexture = circleTexture(screen, 205, 255 - 200 + col[0].rgb, 255 - 150 + col[0].rgb, 255, SNAKE_WIDTH / 2, SNAKE_HEIGHT / 2, SNAKE_WIDTH, SNAKE_HEIGHT, *bonusSize);
-  if (bonusFood->w != 0) SDL_RenderCopy(screen, bonusFoodTexture, NULL, bonusFood);
-  SDL_DestroyTexture(bonusFoodTexture);
+  SDL_Texture* bonusFoodTexture;
+  SDL_Texture* malusFoodTexture;
+  if (bonusFood->w != 0){
+    bonusFoodTexture = circleTexture(screen, 205, 255 - 200 + col[0].rgb, 255 - 150 + col[0].rgb, 255, SNAKE_WIDTH / 2, SNAKE_HEIGHT / 2, SNAKE_WIDTH, SNAKE_HEIGHT, *bonusSize);
+    SDL_RenderCopy(screen, bonusFoodTexture, NULL, bonusFood);
+    SDL_DestroyTexture(bonusFoodTexture);
+  }
+  if (malusFood->w != 0){
+    malusFoodTexture = circleTexture(screen, 255, 255, 255, 255, SNAKE_WIDTH / 2, SNAKE_HEIGHT / 2, SNAKE_WIDTH, SNAKE_HEIGHT, *bonusSize);
+    SDL_RenderCopy(screen, malusFoodTexture, NULL, malusFood);
+    SDL_DestroyTexture(malusFoodTexture);
+  }
 
   /* display the aligned head to smoothen the front movement*/
   if (!(head->dir.dx == 0 && head->dir.dy == 0)){
