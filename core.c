@@ -369,10 +369,11 @@ void drawScreen(queue* body, queue* mazeq, snake* head, SDL_Renderer* screen, SD
   SDL_SetRenderDrawColor(screen, 140 - (int) col[0].rgb, 140 - (int) col[0].rgb, 140 - (int) col[0].rgb, 255);
 }
 
-void clean(SDL_Renderer* screen, SDL_Texture* menuTexture, SDL_Window* window, SDL_Rect** grid, queue* body, queue* mazeq, TTF_Font* font, fadeColor* color){
+void clean(SDL_Renderer* screen, SDL_Texture* menuTexture, SDL_Texture* gameTexture, SDL_Window* window, SDL_Rect** grid, queue* body, queue* mazeq, TTF_Font* font, fadeColor* color){
   /* clean up and free freeable memory */
   SDL_DestroyRenderer(screen);
   SDL_DestroyTexture(menuTexture);
+  SDL_DestroyTexture(gameTexture);
   SDL_DestroyWindow(window);
   free_Rect2D(grid, NBY);
   free(color);

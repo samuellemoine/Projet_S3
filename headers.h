@@ -71,7 +71,7 @@ void drawMenu(SDL_Renderer *, SDL_Texture *, TTF_Font *, fadeColor *, int, int, 
 void handleKeys(const Uint8 *, snake *, dir *, bool *, bool *);
 void move(snake *, SDL_Rect **, queue *, queue *, SDL_Rect *, SDL_Rect *, SDL_Rect *, bool *, bool *, int, int *, int *, unsigned long *);
 void drawScreen(queue *, queue *, snake *, SDL_Renderer *, SDL_Texture *,  SDL_Rect *, SDL_Rect *, SDL_Rect *, int, int, bool, bool, bool, fadeColor*, TTF_Font*, SDL_Rect**, bool *, SDL_Rect *, int *);
-void clean(SDL_Renderer *, SDL_Texture *, SDL_Window *, SDL_Rect **, queue *, queue *, TTF_Font *, fadeColor *);
+void clean(SDL_Renderer *, SDL_Texture *, SDL_Texture *, SDL_Window *, SDL_Rect **, queue *, queue *, TTF_Font *, fadeColor *);
 
 /* function and method profiles for snake.c */
 void colorVariation(fadeColor *);

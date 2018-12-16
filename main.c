@@ -6,13 +6,9 @@ int main(void){
   TTF_Font* font = NULL;
   const Uint8* keyboardState = NULL;
   SDL_Rect** grid = allocate_Rect2D(NBY, NBX);   /* fixed positions of the snake */
-  if (init(window, &screen, &font, &keyboardState, grid) == EXIT_FAILURE){
-    return EXIT_FAILURE;
-  }
-  SDL_SetWindowIcon(window, NULL);
+  if (init(window, &screen, &font, &keyboardState, grid) == EXIT_FAILURE) return EXIT_FAILURE;
 
   SDL_Event event;
-
   /* { axe.dx, axe.dy }   left,   right,    up,     down */
   dir direction     = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
   snake head;               /* head.dir and head.snakeRect initiate the movement */
@@ -71,9 +67,9 @@ int main(void){
     }
     while (SDL_PollEvent(&event)){
       /* reset to initial variables when game is over */
-        if (gameover && ((event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_RETURN) || event.type == SDL_MOUSEBUTTONUP)){
-          reset(&started, &pause, &gameover, &dirChanged, &score, &head, body, mazeq, &food, &bonusFood, &malusFood, grid);
-        }
+      if (gameover && ((event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_RETURN) || event.type == SDL_MOUSEBUTTONUP)){
+        reset(&started, &pause, &gameover, &dirChanged, &score, &head, body, mazeq, &food, &bonusFood, &malusFood, grid);
+      }
       if (!started){      /* menu selector */
         handleMenu(mazeq, &started, &food, &event, screen, menuTexture, font, color, &choice, &level, &mazeSelector, &keyPressed, grid);
       }
@@ -93,7 +89,6 @@ int main(void){
       frameNb += 1;
     }
   }
-  clean(screen, menuTexture, window, grid, body, mazeq, font, color);
-
+  clean(screen, menuTexture, gameTexture, window, grid, body, mazeq, font, color);
   return EXIT_SUCCESS;
 }
