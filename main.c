@@ -75,7 +75,7 @@ int main(void){
         }
       }
       if (!started){      /* menu selector */
-        handleMenu(mazeq, &started, &food, &event, screen, menuTexture, &choice, &level, &mazeSelector, &keyPressed, grid);
+        handleMenu(mazeq, &started, &food, &event, screen, menuTexture, font, color, &choice, &level, &mazeSelector, &keyPressed, grid);
       }
       /* quit the game */
       if (event.type == SDL_QUIT || keyboardState[SDL_SCANCODE_ESCAPE]){

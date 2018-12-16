@@ -59,7 +59,7 @@ void reset(bool* started, bool* pause, bool* gameover, bool* dirChanged, int* sc
     setRect(bonusFood, -1, -1, 0, 0);
 }
 
-void handleMenu(queue* mazeq, bool* started, SDL_Rect* food, SDL_Event* event, SDL_Renderer* screen, SDL_Texture* menuTexture, int* choice, int* level, int* maze, bool* keyPressed, SDL_Rect** grid){
+void handleMenu(queue* mazeq, bool* started, SDL_Rect* food, SDL_Event* event, SDL_Renderer* screen, SDL_Texture* menuTexture, TTF_Font* font, fadeColor* col, int* choice, int* level, int* maze, bool* keyPressed, SDL_Rect** grid){
   int x, y, sizey;
   if (!*keyPressed){
     SDL_GetMouseState(&x, &y);
@@ -125,12 +125,14 @@ void handleMenu(queue* mazeq, bool* started, SDL_Rect* food, SDL_Event* event, S
       }
     break;
   }
-  drawMenu(screen, menuTexture, *choice, *level, *maze);
+  drawMenu(screen, menuTexture, font, col, *choice, *level, *maze);
   free_Char2D(lines, NBY);
 
 }
 
-void drawMenu(SDL_Renderer* screen, SDL_Texture* menuTexture, int choice, int level, int maze){
+void drawMenu(SDL_Renderer* screen, SDL_Texture* menuTexture, TTF_Font* font, fadeColor* col, int choice, int level, int maze){
+  SDL_Color fontColor = (SDL_Color) {150 - col[0].rgb, 200 - col[0].rgb, 200, 255};
+  SDL_Texture* fontTexture = loadTTFTexture(screen, font, &fontColor, "Snake");
   SDL_Rect leftRect = (SDL_Rect) { 4 * SCREEN_WIDTH / 25, 6 * SCREEN_HEIGHT / 25, 8 * SCREEN_WIDTH / 25, 17 * SCREEN_HEIGHT / 25 };
   SDL_Rect rightRect = (SDL_Rect) { 13 * SCREEN_WIDTH / 25, 6 * SCREEN_HEIGHT / 25, 8 * SCREEN_WIDTH / 25, 17 * SCREEN_HEIGHT / 25 };
   SDL_Rect mazeSprite = (SDL_Rect) { (maze * 2 + choice) * 240, 510, 240, 510 };
@@ -138,6 +140,9 @@ void drawMenu(SDL_Renderer* screen, SDL_Texture* menuTexture, int choice, int le
   SDL_RenderClear(screen);
   SDL_RenderCopy(screen, menuTexture, &mazeSprite, &leftRect);
   SDL_RenderCopy(screen, menuTexture, &levelSprite, &rightRect);
+  SDL_Rect fontRect = (SDL_Rect) { 4 *SCREEN_WIDTH / 25, SCREEN_HEIGHT / 25, 18 * SCREEN_WIDTH / 25, 5 * SCREEN_HEIGHT / 25 }
+  SDL_RenderCopy(screen, fontTexture, NULL, &fontRect);
+  SDL_DestroyTexture(fontTexture);
   SDL_RenderPresent(screen);
 }
 

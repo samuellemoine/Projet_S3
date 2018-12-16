@@ -65,8 +65,8 @@ struct FadeColor{
 /* function and method profiles for core.c */
 int init(SDL_Window *, SDL_Renderer **, TTF_Font **, const Uint8 **, SDL_Rect **);
 void reset(bool *, bool *, bool *, bool *, int *, snake *, queue *, queue *, SDL_Rect *, SDL_Rect *, SDL_Rect **);
-void handleMenu(queue *, bool *, SDL_Rect*, SDL_Event *, SDL_Renderer *, SDL_Texture *, int *, int *, int *, bool *, SDL_Rect **);
-void drawMenu(SDL_Renderer *, SDL_Texture *, int, int, int);
+void handleMenu(queue *, bool *, SDL_Rect*, SDL_Event *, SDL_Renderer *, SDL_Texture *, TTF_Font *, fadeColor *, int *, int *, int *, bool *, SDL_Rect **);
+void drawMenu(SDL_Renderer *, SDL_Texture *, TTF_Font *, fadeColor *, int, int, int);
 void handleKeys(const Uint8 *, snake *, dir *, bool *, bool *);
 void move(snake *, SDL_Rect **, queue *, queue *, SDL_Rect *, SDL_Rect *, bool *, bool *, int, int *, int *, unsigned long *);
 void drawScreen(queue *, queue *, snake *, SDL_Renderer *, SDL_Texture *,  SDL_Rect *, SDL_Rect *, int, int, bool, bool, bool, fadeColor*, TTF_Font*, SDL_Rect**, bool *, SDL_Rect *, int *);
