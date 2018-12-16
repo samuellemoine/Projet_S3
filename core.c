@@ -137,10 +137,11 @@ void drawMenu(SDL_Renderer* screen, SDL_Texture* menuTexture, TTF_Font* font, fa
   SDL_Rect rightRect = (SDL_Rect) { 13 * SCREEN_WIDTH / 25, 6 * SCREEN_HEIGHT / 25, 8 * SCREEN_WIDTH / 25, 17 * SCREEN_HEIGHT / 25 };
   SDL_Rect mazeSprite = (SDL_Rect) { (maze * 2 + choice) * 240, 510, 240, 510 };
   SDL_Rect levelSprite = (SDL_Rect) { (level * 2 + choice) * 240, 0, 240, 510 };
+  SDL_Rect fontRect = (SDL_Rect) { 4 *SCREEN_WIDTH / 25, SCREEN_HEIGHT / 25, 18 * SCREEN_WIDTH / 25, 5 * SCREEN_HEIGHT / 25 }
+
   SDL_RenderClear(screen);
   SDL_RenderCopy(screen, menuTexture, &mazeSprite, &leftRect);
   SDL_RenderCopy(screen, menuTexture, &levelSprite, &rightRect);
-  SDL_Rect fontRect = (SDL_Rect) { 4 *SCREEN_WIDTH / 25, SCREEN_HEIGHT / 25, 18 * SCREEN_WIDTH / 25, 5 * SCREEN_HEIGHT / 25 }
   SDL_RenderCopy(screen, fontTexture, NULL, &fontRect);
   SDL_DestroyTexture(fontTexture);
   SDL_RenderPresent(screen);
